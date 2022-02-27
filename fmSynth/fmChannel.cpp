@@ -1,4 +1,3 @@
-#include "algorithm.h"
 #include "fmChannel.h"
 
 fmChannel::fmChannel() {
@@ -57,37 +56,81 @@ fmChannel::fmChannel(std::string patchName) {
 			osc[i].adsr.setSustainInSecs(patch.ops[i].sustainInSecs);
 		}
 		//afPtr = inputAfPtr;
-		afPtr = algorithmList[patch.algorithm];
-		if(afPtr == nullptr)
+		//afPtr = algorithmList<int32_t>[patch.algorithm];
+		afPtr = fnArray[patch.algorithm];
+		
+		if(!afPtr)
 		{
 			// If the algorithm is not available, assert.
+			printf("algorithm not available!\n");
 			assert(false);
 		} 
 		printf("Patch Name: %s\n", patch.name);
 	}
 }
 
-// fmChannel::fmChannel(fmPatch inputPatch, fp1516 (*inputAfPtr)(fmChannel*)) {
-// 	patch.name = inputPatch.name;
-// 	patch.algorithm = inputPatch.algorithm;
-// 	patch.feedback = inputPatch.feedback;
-// 	for (uint8_t i = 0; i < MAX_OSC; i++) {
-// 		patch.ops[i] = inputPatch.ops[i];
-// 	}
-// 	for (uint8_t i = 0; i < MAX_OSC; i++) {
-// 		printf("%f %f %f \n", patch.ops[i].R0, patch.ops[i].R1, patch.ops[i].R3);
-// 		// Load the levels first!
-// 		osc[i].adsr.setLevelsInFloat(patch.ops[i].L0, patch.ops[i].L1, patch.ops[i].L3);
-// 		osc[i].adsr.setRatesInSecs(patch.ops[i].R0, patch.ops[i].R1, patch.ops[i].R3);		
-// 		osc[i].adsr.setSustainInSecs(patch.ops[i].sustainInSecs);
-// 	}
-// 	afPtr = inputAfPtr;
-// 	printf("Patch Name: %s\n", patch.name.c_str());
-// }
+// Algorithm0 is only for testing purposes only!
+int32_t fmChannel::algorithm0() {
+	int32_t Y0 = 0;
 
-fp1516 fmChannel::generateSample() {
-	fp1516 output = (int32_t)0;
-	output = (*afPtr)(this);
+	Y0 = osc[0].op(0);
+
+	return Y0;
+}
+
+int32_t fmChannel::algorithm2() {
+	int32_t Y0 = 0;
+	int32_t Y1 = 0;
+	int32_t Y2 = 0;
+	int32_t Y3 = 0;
+
+	Y0 = this->osc[3].opfb(this->getFeedback());
+	Y1 = this->osc[2].op((int32_t)0);
+	Y2 = this->osc[1].op((Y0 + Y1) / (int32_t)2);
+	Y3 = this->osc[0].op(Y2);
+
+	return Y3;	
+}
+
+int32_t fmChannel::algorithm3() {
+	int32_t Y0 = 0;
+	int32_t Y1 = 0;
+	int32_t Y2 = 0;
+	int32_t Y3 = 0;
+
+	Y0 = this->osc[2].op(this->osc[3].op((int32_t)0));
+	Y1 = this->osc[1].opfb(this->getFeedback());
+	Y2 = this->osc[0].op((Y0 + Y1) / (int32_t)2);
+
+	return Y2;
+}
+
+int32_t fmChannel::algorithm5() {
+	int32_t Y0 = 0;
+	int32_t Y1 = 0;
+
+	Y0 = this->osc[2].op(this->osc[3].opfb(this->getFeedback()));
+	Y1 = this->osc[0].op(this->osc[1].op((int32_t)0));
+
+	return (Y0 + Y1) / 2;
+}
+
+int32_t fmChannel::algorithm7() {
+	int32_t Y0 = 0;
+	int32_t Y1 = 0;
+	int32_t Y2 = 0;
+
+	Y0 = this->osc[2].op(this->osc[3].opfb(this->getFeedback()));
+	Y1 = this->osc[1].op((int32_t)0);
+	Y2 = this->osc[0].op((int32_t)0);
+
+	return (Y0 + Y1 + Y2) / 3;
+}
+
+int32_t fmChannel::generateSample() {
+	int32_t output = 0;
+	output = (this->*afPtr)();
+	//output = (*afPtr)();
 	return output;
 }
 

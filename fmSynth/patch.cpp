@@ -1,5 +1,17 @@
 #include "patch.h"
 
+// Testing patch only, osc0 outputs sine wave and a short envelope:
+//-----L0-----L1------L3-----R0-----R1-----R3---Sustain--Ratio---
+const struct fmPatch p00 {
+	"TEST00",
+		0,
+		0,
+		1.00f, 0.20f, 0.00f, 0.01f, 0.50f, 0.00f, 5.00f, 1.00f,
+		0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f,
+		0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f,
+		0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f
+};
+
 // DX9 master set - Brass 1:
 //-----L0-----L1------L3-----R0-----R1-----R3---Sustain--Ratio---
 const struct fmPatch p02 {
@@ -30,10 +42,10 @@ const struct fmPatch p05 {
 	"MARIMBA",
 		5,
 		3,
-		0.60f, 0.35f, 0.01f, 0.01f, 0.50f, 1.25f, 0.00f, 1.00f,
-		0.60f, 0.35f, 0.01f, 0.01f, 0.50f, 1.25f, 0.00f, 5.02f,
-		0.60f, 0.35f, 0.01f, 0.01f, 0.50f, 1.25f, 0.00f, 1.00f,
-		0.60f, 0.05f, 0.01f, 0.01f, 0.50f, 1.25f, 0.00f, 7.02f
+		0.60f, 0.35f, 0.01f, 0.01f, 0.10f, 1.25f, 0.00f, 1.00f,
+		0.60f, 0.35f, 0.01f, 0.01f, 0.10f, 1.25f, 0.00f, 5.02f,
+		0.60f, 0.35f, 0.01f, 0.01f, 0.10f, 1.25f, 0.00f, 1.00f,
+		0.60f, 0.05f, 0.01f, 0.01f, 0.10f, 1.25f, 0.00f, 7.02f
 };
 
 // DX9 master set - E.Piano:
@@ -96,4 +108,4 @@ const struct fmPatch p13 {
 		0.70f, 0.65f, 0.01f, 0.05f, 1.00f, 0.75f, 100.00f, 0.50f
 };
 
-const struct fmPatch fmPatchList[8] = {p02, p04, p05, p07, p07_1, p09, p16, p13};
+const struct fmPatch fmPatchList[16] = {p00, p02, p04, p05, p07, p07_1, p09, p16, p13};

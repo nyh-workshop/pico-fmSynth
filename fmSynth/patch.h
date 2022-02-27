@@ -28,6 +28,8 @@ struct fmPatch {
 	opSettings ops[4];
 };
 
+// p00 is test patch, use it for only testing! :D
+extern const struct fmPatch p00;
 extern const struct fmPatch p02;
 extern const struct fmPatch p04;
 extern const struct fmPatch p05;
@@ -37,6 +39,6 @@ extern const struct fmPatch p09;
 extern const struct fmPatch p13;
 extern const struct fmPatch p16;
 
-extern const struct fmPatch fmPatchList[8];
+extern const struct fmPatch fmPatchList[16];
 
 #endif

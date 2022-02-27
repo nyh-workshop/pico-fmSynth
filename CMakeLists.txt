@@ -26,12 +26,11 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 add_executable(pico-fmSynth pico-fmSynth.cpp audio_i2s.c
+fmSynth/fmSynth_main.cpp
 fmSynth/envelope.cpp
 fmSynth/oscillator.cpp
 fmSynth/fmChannel.cpp
-fmSynth/algorithm.cpp
 fmSynth/patch.cpp
-fmSynth/smallMidiParser.cpp
 fmSynth/miditones.cpp
 fmSynth/midiFreqTable.c
 sampleMidi.c)
@@ -39,10 +38,12 @@ sampleMidi.c)
 pico_generate_pio_header(pico-fmSynth ${CMAKE_CURRENT_LIST_DIR}/audio_i2s.pio)
 
 pico_set_program_name(pico-fmSynth "pico-fmSynth")
-pico_set_program_version(pico-fmSynth "0.1")
+pico_set_program_version(pico-fmSynth "0.1_interp")
 
 pico_enable_stdio_uart(pico-fmSynth 1)
 pico_enable_stdio_usb(pico-fmSynth 0)
+
+#target_compile_options(pico-fmSynth PRIVATE -H)
 
 target_compile_definitions(pico-fmSynth PRIVATE PICO_AUDIO_I2S_MONO_INPUT)
 
@@ -57,6 +58,7 @@ target_link_libraries(pico-fmSynth
 target_link_libraries(pico-fmSynth
         hardware_dma
         hardware_pio
+        hardware_interp
         )
 
 pico_add_extra_outputs(pico-fmSynth)

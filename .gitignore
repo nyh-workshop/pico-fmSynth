@@ -1,3 +1,4 @@
 .vscode/
 build/
 pico_sdk_import.cmake
+*.cdproj

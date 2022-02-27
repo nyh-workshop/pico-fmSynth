@@ -57,20 +57,19 @@ void PlayTune::stepScore(mutex_t* pInputMutex)
     while (tune_playing)
     {
         cmd = score[score_cursor++];
-        printf("cmd: 0x%x\n", cmd);
+        //printf("cmd: 0x%x\n", cmd);
         if (cmd < 0x80)
         { /* wait count in msec. */
             duration = ((unsigned)cmd << 8) | (score[score_cursor++]);
-            if (!mutex_try_enter(pInputMutex, &owner))
-            {
-                printf("at core 0 - locked, owner: %d, core_num: %d\n", owner, get_core_num());
-                mutex_enter_blocking(pInputMutex);
-            }
+            //if (!mutex_try_enter(pInputMutex, &owner))
+            //{
+            //   printf("at core 0 - locked, owner: %d, core_num: %d\n", owner, get_core_num());
+            //   mutex_enter_blocking(pInputMutex);
+            //}
             
-            printf("delay: 0x%x\n", (uint32_t)(duration));
-            //printf("delay: %d\n", (uint32_t)((float)delta * TempoDivisor * 1000000));
+            //printf("delay: 0x%x\n", (uint32_t)(duration));
 
-            mutex_exit(pInputMutex);
+            //mutex_exit(pInputMutex);
 
             sleep_ms(duration);
             //wait_toggle_count = ((unsigned long)wait_timer_frequency2 * duration + 500) / 1000;
@@ -91,15 +90,15 @@ void PlayTune::stepScore(mutex_t* pInputMutex)
         if (opcode == CMD_STOPNOTE)
         { /* stop note */
             if (!mutex_try_enter(pInputMutex, &owner))
-				{
-					printf("at core 0 - locked, owner: %d, core_num: %d\n", owner, get_core_num());
-					mutex_enter_blocking(pInputMutex);
-				}
-				pfmc[chan].noteOff();
-				printf("note off event! number: %d\n", chan);
-				mutex_exit(pInputMutex);
+            {
+                // printf("at core 0 - locked, owner: %d, core_num: %d\n", owner, get_core_num());
+                mutex_enter_blocking(pInputMutex);
+            }
+            pfmc[chan].noteOff();
+            // printf("note off event! number: %d\n", chan);
+            mutex_exit(pInputMutex);
 
-                sleep_ms(10);
+            sleep_ms(10);
         }
         else if (opcode == CMD_PLAYNOTE)
         {                                 /* play note */
@@ -109,12 +108,14 @@ void PlayTune::stepScore(mutex_t* pInputMutex)
 			
             if (!mutex_try_enter(pInputMutex, &owner))
 			{
-				printf("at core 0 - locked, owner: %d, core_num: %d\n", owner, get_core_num());
+				//printf("at core 0 - locked, owner: %d, core_num: %d\n", owner, get_core_num());
 				mutex_enter_blocking(pInputMutex);
 			}
+            //if(chan < MAX_FM_CHANNELS) {
 			pfmc[chan].setFrequency(convertMidiNoteToFreq(note));
 			pfmc[chan].noteOn();
-			printf("note on event! number: %d, frequency: %f\n", note, convertMidiNoteToFreq(note));				
+            //}
+			//printf("note on event! number: %d, frequency: %f\n", note, convertMidiNoteToFreq(note));				
 			mutex_exit(pInputMutex);
         }
         else if (opcode == CMD_INSTRUMENT)

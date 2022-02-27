@@ -20,22 +20,37 @@
 #include "audio_i2s.h"
 #include "sampleMidi.h"
 
-#include "fmSynth/algorithm.h"
-#include "fmSynth/fmChannel.h"
-#include "fmSynth/FpS.hpp"
-#include "fmSynth/oscillator.h"
-#include "fmSynth/patch.h"
-#include "fmSynth/smallMidiParser.h"
 #include "fmSynth/miditones.h"
 
+#include "fmSynth/fmSynth_main.h"
+
 #define SAMPLES_PER_BUFFER 256
+
+void configureInterpLanes() {
+	interp_config interpCfg = interp_default_config();
+
+	// Lane 0 settings:
+    interp_config_set_add_raw(&interpCfg, true);
+    interp_config_set_cross_input(&interpCfg, 0);
+    interp_config_set_mask(&interpCfg, 22, 31);
+    interp_config_set_shift(&interpCfg, 0);
+    interp_config_set_signed(&interpCfg, false);
+    interp_set_config(interp0, 0, &interpCfg);
+    // Lane 1 settings:
+    interp_config_set_add_raw(&interpCfg, true);
+    interp_config_set_cross_input(&interpCfg, 0);
+    interp_config_set_mask(&interpCfg, 0, 9);
+    interp_config_set_shift(&interpCfg, 22);
+    interp_config_set_signed(&interpCfg, false);
+    interp_set_config(interp0, 1, &interpCfg);
+}
 
 extern "C"
 {
     struct audio_buffer_pool *init_audio()
     {
         static audio_format_t audio_format = {
-            .sample_freq = 22050,
+            .sample_freq = SAMPLE_RATE,
             .format = AUDIO_BUFFER_FORMAT_PCM_S16,
             .channel_count = 1,
         };
@@ -70,20 +85,21 @@ extern "C"
 static mutex_t mPlayer_M;
 static semaphore_t c1_S;
 
-const uint8_t maxChannelNum = 6;
-
-fmChannel fm[maxChannelNum] = {fmChannel("E.PIANO"),
-                              fmChannel("E.PIANO"),
-                              fmChannel("E.PIANO"),
-                              fmChannel("E.PIANO"),
-                              fmChannel("E.PIANO"),
-                              fmChannel("E.PIANO")};
+fmChannel fm[MAX_FM_CHANNELS] = {fmChannel("E.PIANO"),
+                               fmChannel("E.PIANO"),
+                               fmChannel("E.PIANO"),
+                               fmChannel("E.PIANO"),
+                               fmChannel("E.PIANO"),
+                               fmChannel("E.PIANO")};
 
 void core1_entry()
 {
     printf("Entering core1! :D\n");
     uint32_t owner;
     struct audio_buffer_pool *ap = init_audio();
+
+    // RP2040's interpolator module needs to be configured at the respective core before running.
+    configureInterpLanes();
 
     sem_release(&c1_S);
 
@@ -93,23 +109,23 @@ void core1_entry()
     {
         if (!mutex_try_enter(&mPlayer_M, &owner))
         {
-            printf("at core 1 - locked, owner: %d, core_num: %d\n", owner, get_core_num());
+            //printf("at core 1 - locked, owner: %d, core_num: %d\n", owner, get_core_num());
             mutex_enter_blocking(&mPlayer_M);
         }
         struct audio_buffer *buffer = take_audio_buffer(ap, true);
-        int16_t *samples = (int16_t *)buffer->buffer->bytes;
-        fp1516 tempSample(0.00);
+        int16_t* samples = (int16_t*)buffer->buffer->bytes;
+        int16_t tempSample = 0;
 
         for (uint i = 0; i < buffer->max_sample_count; i++)
         {
-
             tempSample = (int16_t)0;
-            for(uint8_t chnNum = 0; chnNum < maxChannelNum; chnNum++) {
-                tempSample += fm[chnNum].generateSample() * (fp1516)((float)(1.00/maxChannelNum));
+            for(uint8_t chnNum = 0; chnNum < MAX_FM_CHANNELS; chnNum++) {
+                //absolute_time_t before = get_absolute_time();
+                tempSample += 100 * fm[chnNum].generateSample() / MAX_FM_CHANNELS;
+                //absolute_time_t after = get_absolute_time();
+                //printf("generate fm sample: %d\n", (uint32_t)absolute_time_diff_us(before, after));
             }
-            // Set it to 3/4 the max volume!
-            samples[i] = (int16_t)( tempSample * (fp1516)(24576.00) );
-            
+            samples[i] = tempSample;
         }
         buffer->sample_count = buffer->max_sample_count;
         give_audio_buffer(ap, buffer);
@@ -121,16 +137,16 @@ void core1_entry()
 int main() {
     
     // attempt to overclock to 250MHz: https://www.raspberrypi.org/forums/viewtopic.php?t=304309
-    if (!set_sys_clock_khz(270000, false))
-      printf("system clock 250MHz failed\n");
-    else
-      printf("system clock now 250MHz\n");
+    // if (!set_sys_clock_khz(250000, false))
+    //     printf("system clock 250MHz failed\n");
+    // else
+    //     printf("system clock now 250MHz\n");
 
     stdio_init_all();
 
     uint32_t owner;
     //smallMidiParser sm(sampleMidi, fm);
-    PlayTune mdt(sampleMidiTones, fm);  
+    PlayTune mdt(sampleMidiTones, fm);
 
     mutex_init(&mPlayer_M);
     sem_init(&c1_S, 0, 2);
@@ -148,9 +164,13 @@ int main() {
     // average 14~16 uS for one FM channel!
     // 250MHz:
     // average 7~8 uS for one FM channel!
+
+    // RP2040 interpolator:
+    // 125MHz:
+    // average less than 1 uS for one operator!
+    // average 4~5 uS for one FM channel!
     while (true)
     {
-        //sm.playMidiData(&midiPlayer_M);
        mdt.stepScore(&mPlayer_M);
     }
     puts("\n");

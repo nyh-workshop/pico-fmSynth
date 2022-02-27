@@ -2,12 +2,10 @@
 #define _OSCILLATOR_H
 
 #include "envelope.h"
-//#include "wavetable.h"
-#include "fmSynth_main.h"
+#include "hardware/interp.h"
 
-const fp1516 oscPiFP(M_PI);
-const fp1516 sampleRateFP(SAMPLE_RATE);
-const fp1516 sampleRateFP_r((float)1/(float)SAMPLE_RATE);
+#include <math.h>
+#include "pico/stdlib.h"
 
 // https://dev.to/noah11012/start-using-asserts-452c
 //#define assert(expression) if(expression == false) printf("assert failed!\n"); exit(1)
@@ -17,25 +15,25 @@ public:
 	Oscillator();
 	~Oscillator();
 	void setFrequency(float inputFreq);
-	inline fp1516 calculateSine(fp1516 inputFP);
-	inline fp1516 getAccumulator() { return accumulatorFP;  }
-	//inline uint32_t getAccumulator() { return accumulator; }
-	inline void setTempFP(fp1516 inputTempFP) { tempFP = inputTempFP;  }
-	fp1516& setTempFP();
-	inline fp1516 getTempFP() { return tempFP; }
+	inline void setTuningWord(uint32_t inputTuningWord) { tuningWord = inputTuningWord; }
+	
 	// opfb can take fbShift if needed feedback into self.
-	fp1516 opfb(uint8_t fbShift);
-	fp1516 op(fp1516 inputFeedback);
-	Envelope adsr;
-private:	
-	inline fp1516 bhaskaraOneSine(fp1516 inputFP);
-	fp1516 feedbackFP[4] = { 0.0, 0.0, 0.0, 0.0 }; // feedback buffers (for Yamaha FM feedback style) 
-	fp1516 freqFP;
-	fp1516 tempFP; // for storing feedback data when doing each sample!
-	fp1516 accumulatorFP;
+	int32_t opfb(uint8_t fbShift);
+	int32_t op(int32_t inputFeedback);
+
+	int32_t opTest();	
+	
+	void configureInterpLanes();
+	Envelope<fixedPoint> adsr;
+private:
+	//interp_config interpCfg;
+	//interp_hw_save_t interpSave;
+	
+	int32_t feedback[2] = {0, 0};
 	uint32_t tuningWord;
 	uint32_t accumulator;
-	int32_t sampleTime;
+
+	static bool wavetableFilled;
 };
 
 #endif
