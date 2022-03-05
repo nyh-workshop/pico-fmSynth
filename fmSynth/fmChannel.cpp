@@ -73,7 +73,15 @@ fmChannel::fmChannel(std::string patchName) {
 int32_t fmChannel::algorithm0() {
 	int32_t Y0 = 0;
 
-	Y0 = osc[0].op(0);
+	Y0 = osc[0].opSineTest();
+
+	return Y0;
+}
+
+int32_t fmChannel::algorithm1() {
+	int32_t Y0 = 0;
+
+	Y0 = osc[0].op(osc[1].op(osc[2].op(osc[3].opfb(getFeedback()))));
 
 	return Y0;
 }
@@ -84,10 +92,10 @@ int32_t fmChannel::algorithm2() {
 	int32_t Y2 = 0;
 	int32_t Y3 = 0;
 
-	Y0 = this->osc[3].opfb(this->getFeedback());
-	Y1 = this->osc[2].op((int32_t)0);
-	Y2 = this->osc[1].op((Y0 + Y1) / (int32_t)2);
-	Y3 = this->osc[0].op(Y2);
+	Y0 = osc[3].opfb(getFeedback());
+	Y1 = osc[2].op((int32_t)0);
+	Y2 = osc[1].op((Y0 + Y1) / (int32_t)2);
+	Y3 = osc[0].op(Y2);
 
 	return Y3;	
 }
@@ -98,21 +106,44 @@ int32_t fmChannel::algorithm3() {
 	int32_t Y2 = 0;
 	int32_t Y3 = 0;
 
-	Y0 = this->osc[2].op(this->osc[3].op((int32_t)0));
-	Y1 = this->osc[1].opfb(this->getFeedback());
-	Y2 = this->osc[0].op((Y0 + Y1) / (int32_t)2);
+	Y0 = osc[2].op(osc[3].op((int32_t)0));
+	Y1 = osc[1].opfb(getFeedback());
+	Y2 = osc[0].op((Y0 + Y1) / (int32_t)2);
 
 	return Y2;
 }
+
+int32_t fmChannel::algorithm4() {
+	int32_t Y0 = 0;
+	int32_t Y1 = 0;
+	int32_t Y2 = 0;
+
+	Y0 = osc[2].op(osc[3].opfb(getFeedback()));
+	Y1 = osc[1].op(0);
+	Y2 = osc[0].op(Y0 + Y1);
+
+	return Y2;
+}
+
 
 int32_t fmChannel::algorithm5() {
 	int32_t Y0 = 0;
 	int32_t Y1 = 0;
 
-	Y0 = this->osc[2].op(this->osc[3].opfb(this->getFeedback()));
-	Y1 = this->osc[0].op(this->osc[1].op((int32_t)0));
+	Y0 = osc[2].op(osc[3].opfb(getFeedback()));
+	Y1 = osc[0].op(osc[1].op((int32_t)0));
 
 	return (Y0 + Y1) / 2;
+}
+
+int32_t fmChannel::algorithm6() {
+	int32_t Y0 = 0;
+	int32_t Y1 = 0;
+
+	Y0 = osc[3].opfb(getFeedback());
+	Y1 = osc[2].op(Y0)+ osc[1].op(Y0) +	osc[0].op(Y0);
+
+	return Y1 / 3;
 }
 
 int32_t fmChannel::algorithm7() {
@@ -120,11 +151,19 @@ int32_t fmChannel::algorithm7() {
 	int32_t Y1 = 0;
 	int32_t Y2 = 0;
 
-	Y0 = this->osc[2].op(this->osc[3].opfb(this->getFeedback()));
-	Y1 = this->osc[1].op((int32_t)0);
-	Y2 = this->osc[0].op((int32_t)0);
+	Y0 = osc[2].op(osc[3].opfb(getFeedback()));
+	Y1 = osc[1].op((int32_t)0);
+	Y2 = osc[0].op((int32_t)0);
 
 	return (Y0 + Y1 + Y2) / 3;
+}
+
+int32_t fmChannel::algorithm8() {
+	int32_t Y0 = 0;
+
+	Y0 = osc[3].opfb(getFeedback()) + osc[2].op(0) + osc[1].op(0) + osc[0].op(0);
+
+	return Y0 / 4;
 }
 
 int32_t fmChannel::generateSample() {

@@ -10,10 +10,14 @@ public:
 
 	// Lumping the algorithms into the FM channel:
 	int32_t algorithm0();
+	int32_t algorithm1();
 	int32_t algorithm2();
 	int32_t algorithm3();
+	int32_t algorithm4();
 	int32_t algorithm5();
+	int32_t algorithm6();
 	int32_t algorithm7();
+	int32_t algorithm8();
 
 	// Default fm channel settings: all zeros!
 	fmChannel();
@@ -24,9 +28,6 @@ public:
 	uint8_t getFeedback();
 	int32_t generateSample();
 
-	//static algorithmFM<uint32_t> aFM;
-	//uint32_t (algorithmFM<uint32_t>::*a2)(fmChannel*) = &algorithmFM<uint32_t>::algorithm2;
-	
 	// Temporary fix for this one - 4 oscillators maximum for each FM channel!
 	static const uint8_t MAX_OSC = 4;
 	Oscillator osc[MAX_OSC];

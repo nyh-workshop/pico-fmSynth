@@ -4,6 +4,8 @@ int16_t wavetable1024[1024];
 
 bool Oscillator::wavetableFilled = false;
 
+constexpr uint32_t SINE_440_TUNING_WORD = ((uint64_t)UINT32_MAX * 440ul) / SAMPLE_RATE; 
+
 Oscillator::Oscillator() {
 	printf("osc create!\n");
 
@@ -52,46 +54,56 @@ void Oscillator::setFrequency(float inputFreq) {
 	//printf("tuningWord: %f\n", (float)tuningWord);
 }
 
-int32_t Oscillator::op(int32_t inputFeedback) {
+int32_t Oscillator::op(int32_t inputFeedback)
+{
 
-	//configureInterpLanes();
+	if (adsr.getState() != NONE)
+	{
 
-	interp0->base[0] = tuningWord;
-	interp0->accum[0] =  accumulator;	
+		interp0->base[0] = tuningWord;
+		interp0->accum[0] = accumulator;
 
-	uint32_t _result2 = interp_pop_full_result(interp0);	
-	//int32_t _result0 = wavetable1024[(_result2 >> 22)];
-	int32_t _result0 = wavetable1024[((_result2 >> 22) + inputFeedback) & 0x3ff];
+		uint32_t _result2 = interp_pop_full_result(interp0);
+		// int32_t _result0 = wavetable1024[(_result2 >> 22)];
+		int32_t _result0 = wavetable1024[((_result2 >> 22) + inputFeedback) & 0x3ff];
 
-	accumulator = interp0->accum[0];
+		accumulator = interp0->accum[0];
 
-	fixedPoint outputFP(_result0);
+		fixedPoint outputFP(_result0);
 
-	int32_t output = (int32_t)(outputFP * adsr.envelopeStep());
+		int32_t output = (int32_t)(outputFP * adsr.envelopeStep());
 
-	return output;
+		return output;
+	}
+	else
+		return 0;
 }
 
 int32_t Oscillator::opfb(uint8_t fbShift) {
 
-	int32_t scaled_fb = (feedback[0] + feedback[1]) >> (fbShift + 1);
-    feedback[1] = feedback[0];
+	if (adsr.getState() != NONE)
+	{
+		int32_t scaled_fb = (feedback[0] + feedback[1]) >> (fbShift + 1);
+		feedback[1] = feedback[0];
 
-	interp0->base[0] = tuningWord;
-	interp0->accum[0] =  accumulator;
+		interp0->base[0] = tuningWord;
+		interp0->accum[0] = accumulator;
 
-	uint32_t _result2 = interp_pop_full_result(interp0);
-	int32_t _result0 = wavetable1024[( (_result2 >> 22) + scaled_fb ) & 0x3ff];
+		uint32_t _result2 = interp_pop_full_result(interp0);
+		int32_t _result0 = wavetable1024[((_result2 >> 22) + scaled_fb) & 0x3ff];
 
-	feedback[0] = _result0;
+		feedback[0] = _result0;
 
-	accumulator = interp0->accum[0];
+		accumulator = interp0->accum[0];
 
-	fixedPoint outputFP(_result0);
+		fixedPoint outputFP(_result0);
 
-	int32_t output = (int32_t)(outputFP * adsr.envelopeStep());
+		int32_t output = (int32_t)(outputFP * adsr.envelopeStep());
 
-	return output;
+		return output;
+	}
+	else
+		return 0;
 
 	// debugging values here!
 	//printf("acc: %f, output: %f\n", (float)accumulator, (float)outputFP);
@@ -101,26 +113,27 @@ int32_t Oscillator::opfb(uint8_t fbShift) {
 	//printf("%f ", (float)outputFP);
 }
 
-int32_t Oscillator::opTest() {
+int32_t Oscillator::opSineTest() {
 	// This test is outputting samples of pure sine wave, with the tuningWord.
 	// Set the tuningWord before calling this.
 	// Note: If there aren't any outputs or wrong outputs, check whether the interpolators are properly initialized or not!
 
 	absolute_time_t before = get_absolute_time();
 
-	interp0->base[0] = tuningWord;
+	interp0->base[0] = SINE_440_TUNING_WORD;
 	interp0->accum[0] = accumulator;
+	//printf("%u\n",SINE_440_TUNING_WORD);
 	//printf("osc address: %08x\n", this);
 	//printf("before accumulator: %d\n", accumulator);
 	uint32_t _result2 = interp_pop_full_result(interp0);
-	int32_t _result0 = wavetable1024[(_result2 >> 22)];
+	int32_t _result0 = wavetable1024[(_result2 >> 22) & 0x3ff];
 	accumulator = interp0->accum[0];
 	//printf("after accumulator: %d\n", accumulator);
-	//printf("%d ,", _result0);
+	printf("%d ,", _result0);
 
 	absolute_time_t after = get_absolute_time();
 
-	printf("op: time taken -> %d\n", absolute_time_diff_us(before, after));
+	//printf("op: time taken -> %d\n", absolute_time_diff_us(before, after));
 
 	return _result0;
 }

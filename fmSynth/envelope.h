@@ -19,6 +19,7 @@ public:
 	// Split into set levels (L) set rates (R) and set Sustain (sustain):
 	// setRates and setLevels are in fixed point!
 	// setRatesInSecs and setLevelsInFloat are in floating points!
+	inline EnvelopeState getState() { return state; }
 	void setRatesInSecs(float inputR0_s, float inputR1_s, float inputR3_s);
 	void setRates(T inputR0, T inputR1, T inputR3);
 	void setSustainInSecs(float inputSustain);

@@ -21,7 +21,7 @@ public:
 	int32_t opfb(uint8_t fbShift);
 	int32_t op(int32_t inputFeedback);
 
-	int32_t opTest();	
+	int32_t opSineTest();	
 	
 	void configureInterpLanes();
 	Envelope<fixedPoint> adsr;

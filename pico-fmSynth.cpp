@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <chrono>
 #include <stdio.h>
 #include <math.h>
 
@@ -85,12 +84,16 @@ extern "C"
 static mutex_t mPlayer_M;
 static semaphore_t c1_S;
 
+#ifndef SINE_DEBUG
 fmChannel fm[MAX_FM_CHANNELS] = {fmChannel("E.PIANO"),
                                fmChannel("E.PIANO"),
                                fmChannel("E.PIANO"),
                                fmChannel("E.PIANO"),
                                fmChannel("E.PIANO"),
                                fmChannel("E.PIANO")};
+#else
+fmChannel fm[1] = {fmChannel("TEST00")};
+#endif
 
 void core1_entry()
 {
@@ -121,9 +124,9 @@ void core1_entry()
             tempSample = (int16_t)0;
             for(uint8_t chnNum = 0; chnNum < MAX_FM_CHANNELS; chnNum++) {
                 //absolute_time_t before = get_absolute_time();
-                tempSample += 100 * fm[chnNum].generateSample() / MAX_FM_CHANNELS;
+                tempSample += 128 * fm[chnNum].generateSample() / MAX_FM_CHANNELS;
                 //absolute_time_t after = get_absolute_time();
-                //printf("generate fm sample: %d\n", (uint32_t)absolute_time_diff_us(before, after));
+                //printf("generate fm sample: %d\n", (uint32_t)absolute_time_diff_us(before, after))
             }
             samples[i] = tempSample;
         }
@@ -157,7 +160,9 @@ int main() {
 
     printf("acquire blocking already!\n");
 
+    #ifndef SINE_DEBUG
     mdt.startPlaying();
+    #endif
 
     // 125MHz:
     // average 3~4 uS for one operator!
@@ -171,7 +176,11 @@ int main() {
     // average 4~5 uS for one FM channel!
     while (true)
     {
-       mdt.stepScore(&mPlayer_M);
+        #ifndef SINE_DEBUG
+        mdt.stepScore(&mPlayer_M);
+        #else
+        sleep_ms(250);
+        #endif
     }
     puts("\n");
     return 0;

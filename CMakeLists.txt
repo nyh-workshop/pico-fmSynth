@@ -38,7 +38,7 @@ sampleMidi.c)
 pico_generate_pio_header(pico-fmSynth ${CMAKE_CURRENT_LIST_DIR}/audio_i2s.pio)
 
 pico_set_program_name(pico-fmSynth "pico-fmSynth")
-pico_set_program_version(pico-fmSynth "0.1_interp")
+pico_set_program_version(pico-fmSynth "0.2_interp")
 
 pico_enable_stdio_uart(pico-fmSynth 1)
 pico_enable_stdio_usb(pico-fmSynth 0)
