@@ -44,7 +44,7 @@ private:
 	int32_t (fmChannel::*a7)() = &fmChannel::algorithm7;
 	
 	//https://stackoverflow.com/questions/57926015/how-to-declare-an-array-of-pointers-to-member-functions-in-c
-	static constexpr algorithmPtr fnArray[8] = { &fmChannel::algorithm0, nullptr, &fmChannel::algorithm2, &fmChannel::algorithm3, nullptr, &fmChannel::algorithm5, nullptr, &fmChannel::algorithm7 };
+	static constexpr algorithmPtr fnArray[8] = { &fmChannel::algorithm0, &fmChannel::algorithm1, &fmChannel::algorithm2, &fmChannel::algorithm3, &fmChannel::algorithm4, &fmChannel::algorithm5, &fmChannel::algorithm6, &fmChannel::algorithm7 };
 
 	algorithmPtr afPtr;
 

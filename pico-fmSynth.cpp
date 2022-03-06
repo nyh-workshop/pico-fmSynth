@@ -34,14 +34,14 @@ void configureInterpLanes() {
     interp_config_set_mask(&interpCfg, 22, 31);
     interp_config_set_shift(&interpCfg, 0);
     interp_config_set_signed(&interpCfg, false);
-    interp_set_config(interp0, 0, &interpCfg);
+    interp_set_config(interp1, 0, &interpCfg);
     // Lane 1 settings:
     interp_config_set_add_raw(&interpCfg, true);
     interp_config_set_cross_input(&interpCfg, 0);
     interp_config_set_mask(&interpCfg, 0, 9);
     interp_config_set_shift(&interpCfg, 22);
     interp_config_set_signed(&interpCfg, false);
-    interp_set_config(interp0, 1, &interpCfg);
+    interp_set_config(interp1, 1, &interpCfg);
 }
 
 extern "C"
@@ -149,7 +149,7 @@ int main() {
 
     uint32_t owner;
     //smallMidiParser sm(sampleMidi, fm);
-    PlayTune mdt(sampleMidiTones, fm);
+    PlayTune mdt(sampleMidiTones4, fm);
 
     mutex_init(&mPlayer_M);
     sem_init(&c1_S, 0, 2);

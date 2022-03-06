@@ -12,16 +12,16 @@ const struct fmPatch p00 {
 		0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f
 };
 
-// DX9 master set - Brass 1:
+// DX7 default - Brass 1 (loosely based on rom1a.syx):
 //-----L0-----L1------L3-----R0-----R1-----R3---Sustain--Ratio---
 const struct fmPatch p02 {
 	"BRASS1",
-		3,
-		1,
-		0.50f, 0.30f, 0.01f, 0.02f, 1.00f, 1.25f, 5.00f, 1.00f,
-		0.30f, 0.10f, 0.01f, 0.08f, 3.00f, 1.25f, 5.00f, 1.00f,
-		0.20f, 0.08f, 0.01f, 0.02f, 3.00f, 1.25f, 5.00f, 1.00f,
-		0.20f, 0.08f, 0.01f, 0.02f, 3.00f, 1.25f, 5.00f, 6.25f
+		6,
+		0,
+		0.80f, 0.70f, 0.01f, 0.10f, 0.05f, 0.05f, 5.00f, 1.00f,
+		0.80f, 0.70f, 0.01f, 0.10f, 0.05f, 0.05f, 5.00f, 1.00f,
+		0.80f, 0.70f, 0.01f, 0.10f, 0.05f, 0.05f, 5.00f, 1.00f,
+		0.80f, 0.70f, 0.01f, 0.10f, 0.05f, 0.05f, 5.00f, 0.99f
 };
 
 // DX9 set 4 - Tubular Bells:
@@ -108,4 +108,40 @@ const struct fmPatch p13 {
 		0.70f, 0.65f, 0.01f, 0.05f, 1.00f, 0.75f, 100.00f, 0.50f
 };
 
-const struct fmPatch fmPatchList[16] = {p00, p02, p04, p05, p07, p07_1, p09, p16, p13};
+// DX7 default - Harpsichord 1 (loosely based on rom3b.syx):
+//-----L0-----L1------L3-----R0-----R1-----R3---Sustain--Ratio---
+const struct fmPatch p19 {
+		"HARPSICH1",
+		5,
+		5,
+		0.90f, 0.15f, 0.00f, 0.01f, 0.50f, 0.15f, 0.00f, 1.01f,
+		0.90f, 0.15f, 0.00f, 0.01f, 0.50f, 0.01f, 1.00f, 4.00f,
+		0.90f, 0.15f, 0.00f, 0.01f, 0.50f, 0.15f, 0.00f, 0.99f,
+		0.90f, 0.15f, 0.00f, 0.01f, 0.50f, 0.01f, 1.00f, 5.00f
+};
+
+// DX7 default - Jazz Guitar 2 (loosely based on rom3b.syx):
+//-----L0-----L1------L3-----R0-----R1-----R3---Sustain--Ratio---
+const struct fmPatch p23 {
+		"JAZZGUIT2",
+		3,
+		3,
+		0.90f, 0.15f, 0.00f, 0.01f, 0.50f, 0.55f, 0.00f, 1.00f,
+		0.90f, 0.15f, 0.00f, 0.01f, 0.50f, 0.35f, 0.00f, 3.00f,
+		0.90f, 0.15f, 0.00f, 0.01f, 0.50f, 0.55f, 0.00f, 14.00f,
+		0.90f, 0.75f, 0.30f, 0.95f, 0.01f, 0.01f, 1.00f, 3.44f
+};
+
+// DX7 default - Lute (loosely based on rom3b.syx):
+//-----L0-----L1------L3-----R0-----R1-----R3---Sustain--Ratio---
+const struct fmPatch p27 {
+		"LUTE",
+		2,
+		0,
+		0.90f, 0.15f, 0.00f, 0.01f, 1.00f, 0.55f, 0.00f, 1.00f,
+		0.90f, 0.15f, 0.00f, 0.01f, 1.00f, 0.35f, 0.00f, 2.01f,
+		0.90f, 0.15f, 0.00f, 0.01f, 1.00f, 0.55f, 0.00f, 4.01f,
+		0.90f, 0.30f, 0.10f, 0.01f, 0.05f, 0.01f, 1.00f, 5.95f
+};
+
+const struct fmPatch fmPatchList[32] = {p00, p02, p04, p05, p07, p07_1, p09, p16, p13, p19, p23, p27};

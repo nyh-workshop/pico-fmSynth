@@ -26,10 +26,14 @@ public:
 	void setLevelsInFloat(float inputL0_s, float inputL1_s, float inputL3_s);
 	void setLevels(T inputL0, T inputL1, T inputL3);
 	void setState(EnvelopeState inputState);
+	void startADSR();
+	void calculateEnvelope(T& _volume, uint32_t& _sustainCounter, EnvelopeState& _state);
 	T envelopeStep();
 
 private:
 	T volume;
+	T nextVolume;
+	T lerpVol;
 	// attack:
 	T L0;
 	T R0;
@@ -39,6 +43,7 @@ private:
 	// sustain (in number of samples):
 	uint32_t sustain;
 	uint32_t sustainCounter = 0;
+	uint32_t nextSustainCounter = 0;
 	// release:
 	T L3;
 	T R3;
@@ -46,6 +51,7 @@ private:
 	uint32_t envCount = 0;
 
 	EnvelopeState state = NONE;
+	EnvelopeState nextState = NONE;
 };
 
 template <typename T>
@@ -53,13 +59,14 @@ Envelope<T>::Envelope() {
 	// all starts at zero at test!
 	printf("Creating envelope!\n");
 
-	// Compatible data types: float, double and a fixed point system!
+	// Compatible data types: float and fixed point!
 	constexpr bool isFloat = std::is_same_v<T, float>;
 	constexpr bool isFixedPoint = std::is_same_v<T, fixedPoint>;
 
 	if constexpr (isFloat)
 	{
 		volume = 0.00f;
+		nextVolume = 0.00f;
 		L0 = 0.00f;
 		R0 = 0.00f;
 		L1 = 0.00f;
@@ -71,6 +78,7 @@ Envelope<T>::Envelope() {
 	if constexpr (isFixedPoint)
 	{
 		volume = (fixedPoint)0.00f;
+		nextVolume = (fixedPoint)0.00f;
 		L0 = (fixedPoint)0.00f;
 		R0 = (fixedPoint)0.00f;
 		L1 = (fixedPoint)0.00f;
@@ -88,47 +96,44 @@ Envelope<T>::~Envelope() {
 }
 
 template <typename T>
-T Envelope<T>::envelopeStep() {
+void Envelope<T>::calculateEnvelope(T& _volume, uint32_t& _sustainCounter, EnvelopeState& _state) {
 
-	// Compatible data types: float, double and a fixed point system!
+	// Compatible data types: float and fixed point!
 	constexpr bool isFloat = std::is_same_v<T, float>;
 	constexpr bool isFixedPoint = std::is_same_v<T, fixedPoint>;
 
-	if (envCount >= tenMsTick) {
-		envCount = 0;
-
-		if (state == ATTACK) {
-			volume += R0;
+    if (_state == ATTACK) {
+			_volume += R0;
 			//printf("a");
 			//printf("%f ", (float)volume);
-			if (volume >= L0) {
+			if (_volume >= L0) {
 				//printf(">");
-				volume = L0;
-				state = DECAY;
+				_volume = L0;
+				_state = DECAY;
 			}
 		}
-		else if (state == DECAY) {
+		else if (_state == DECAY) {
 			//printf("d");
 			//printf("%f ", (float)volume);
-			volume = volume * R1;
-			if (volume <= L1) {
-				volume = L1;
-				state = SUSTAIN;
+			_volume = _volume * R1;
+			if (_volume <= L1) {
+				_volume = L1;
+				_state = SUSTAIN;
 			}
 		}
-		else if (state == SUSTAIN) {
-			sustainCounter = sustainCounter + 1;
-			if (sustainCounter >= sustain) {
-				sustainCounter = 0;
-				state = RELEASE;
+		else if (_state == SUSTAIN) {
+			_sustainCounter = _sustainCounter + 1;
+			if (_sustainCounter >= sustain) {
+				_sustainCounter = 0;
+				_state = RELEASE;
 			}
 		}
-		else if (state == RELEASE) {
+		else if (_state == RELEASE) {
 			//printf("r");
 			//printf("%f ", (float)volume);
-			volume = volume * R3;
-			if (volume <= L3) {
-				state = NONE;
+			_volume = _volume * R3;
+			if (_volume <= L3) {
+				_state = NONE;
 			}
 		}
 		else {
@@ -139,11 +144,40 @@ T Envelope<T>::envelopeStep() {
 			if constexpr(isFixedPoint)
 				volume = (int32_t)0;
 		}
-		return volume;
+}
+
+template <typename T>
+T Envelope<T>::envelopeStep() {
+
+	// Compatible data types: float and fixed point!
+	constexpr bool isFloat = std::is_same_v<T, float>;
+	constexpr bool isFixedPoint = std::is_same_v<T, fixedPoint>;
+    
+	if (envCount >= tenMsTick) {
+		envCount = 0;
+
+        calculateEnvelope(volume, sustainCounter, state);
+        
+        nextVolume = volume;
+        nextState = state;
+        nextSustainCounter = sustainCounter;
+        
+        calculateEnvelope(nextVolume, nextSustainCounter, nextState);
+        
+        return volume;
 	}
 	else {
+		// Linear interpolation here!
+		if constexpr(isFloat)
+		    lerpVol = ( float((nextVolume - volume)/tenMsTick) * envCount ) + volume;
+		if constexpr(isFixedPoint) {
+			fixedPoint tenMsTickFP = (fixedPoint)(float)(1/tenMsTick);
+			lerpVol = ((nextVolume - volume)/tenMsTickFP) + volume;
+		}
+		
 		envCount++;
-		return volume;
+		return lerpVol;
+		//return volume;
 	}
 }
 
@@ -158,7 +192,7 @@ void Envelope<T>::setLevels(T inputL0, T inputL1, T inputL3) {
 template <typename T>
 void Envelope<T>::setLevelsInFloat(float inputL0_s, float inputL1_s, float inputL3_s) {
 
-	// Compatible data types: float, double and a fixed point system!
+	// Compatible data types: float and fixed point!
 	constexpr bool isFloat = std::is_same_v<T, float>;
 	constexpr bool isFixedPoint = std::is_same_v<T, fixedPoint>;
 
@@ -187,7 +221,7 @@ void Envelope<T>::setRates(T inputR0, T inputR1, T inputR3) {
 template <typename T>
 void Envelope<T>::setRatesInSecs(float inputR0_s, float inputR1_s, float inputR3_s) {
 
-	// Compatible data types: float, double and a fixed point system!
+	// Compatible data types: float and fixed point!
 	constexpr bool isFloat = std::is_same_v<T, float>;
 	constexpr bool isFixedPoint = std::is_same_v<T, fixedPoint>;
 
@@ -232,8 +266,6 @@ void Envelope<T>::setRatesInSecs(float inputR0_s, float inputR1_s, float inputR3
 
 template <typename T>
 void Envelope<T>::setState(EnvelopeState inputState) {
-	// todo: change this to restart envelope!
-	//volume = (fp1516)0.000f;
 	
 	// Compatible data types: float and fixed point!
 	constexpr bool isFloat = std::is_same_v<T, float>;
@@ -246,6 +278,18 @@ void Envelope<T>::setState(EnvelopeState inputState) {
 template <typename T>
 void Envelope<T>::setSustainInSecs(float inputSustain) {
 	sustain = (uint32_t)(inputSustain / 0.01f);
+}
+
+template <typename T>
+void Envelope<T>::startADSR() {
+    setState(ATTACK);
+    envCount = 0;
+
+    nextVolume = volume;
+    nextState = state;
+    nextSustainCounter = sustainCounter;
+        
+    calculateEnvelope(nextVolume, nextSustainCounter, nextState);
 }
 
 #endif

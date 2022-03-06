@@ -143,7 +143,7 @@ int32_t fmChannel::algorithm6() {
 	Y0 = osc[3].opfb(getFeedback());
 	Y1 = osc[2].op(Y0)+ osc[1].op(Y0) +	osc[0].op(Y0);
 
-	return Y1 / 3;
+	return Y1;
 }
 
 int32_t fmChannel::algorithm7() {
@@ -179,7 +179,8 @@ uint8_t fmChannel::getFeedback() {
 
 void fmChannel::noteOn() {
 	for (uint8_t i = 0; i < MAX_OSC; i++) {
-		osc[i].adsr.setState(ATTACK);
+		//osc[i].adsr.setState(ATTACK);
+		osc[i].adsr.startADSR();
 	}
 }
 

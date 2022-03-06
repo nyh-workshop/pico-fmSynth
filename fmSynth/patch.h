@@ -38,7 +38,10 @@ extern const struct fmPatch p07_1;
 extern const struct fmPatch p09;
 extern const struct fmPatch p13;
 extern const struct fmPatch p16;
+extern const struct fmPatch p19;
+extern const struct fmPatch p23;
+extern const struct fmPatch p27;
 
-extern const struct fmPatch fmPatchList[16];
+extern const struct fmPatch fmPatchList[32];
 
 #endif
