@@ -21,14 +21,14 @@ public:
 	int32_t opfb(uint8_t fbShift);
 	int32_t op(int32_t inputFeedback);
 
-	int32_t opSineTest();	
+	int32_t opSineTest();
+	int32_t opSineFbTest(uint8_t fbShift);
+
+	void clearFeedbackArray();
 	
 	void configureInterpLanes();
 	Envelope<fixedPoint> adsr;
 private:
-	//interp_config interpCfg;
-	//interp_hw_save_t interpSave;
-	
 	int32_t feedback[2] = {0, 0};
 	uint32_t tuningWord;
 	uint32_t accumulator;

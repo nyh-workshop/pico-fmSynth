@@ -55,8 +55,6 @@ fmChannel::fmChannel(std::string patchName) {
 			osc[i].adsr.setRatesInSecs(patch.ops[i].R0, patch.ops[i].R1, patch.ops[i].R3);
 			osc[i].adsr.setSustainInSecs(patch.ops[i].sustainInSecs);
 		}
-		//afPtr = inputAfPtr;
-		//afPtr = algorithmList<int32_t>[patch.algorithm];
 		afPtr = fnArray[patch.algorithm];
 		
 		if(!afPtr)
@@ -73,7 +71,10 @@ fmChannel::fmChannel(std::string patchName) {
 int32_t fmChannel::algorithm0() {
 	int32_t Y0 = 0;
 
-	Y0 = osc[0].opSineTest();
+	if (sineTest == SINE_ONLY)
+		Y0 = osc[0].opSineTest();
+	else
+		Y0 = osc[0].opSineFbTest(getFeedback());
 
 	return Y0;
 }
@@ -173,6 +174,13 @@ int32_t fmChannel::generateSample() {
 	return output;
 }
 
+void fmChannel::setFeedback(uint8_t fbShift) {
+	patch.feedback = fbShift;
+	for(uint8_t i = 0; i < MAX_OSC; i++) {
+		osc[i].clearFeedbackArray();
+	}
+}
+
 uint8_t fmChannel::getFeedback() {
 	return patch.feedback;
 }
@@ -190,8 +198,63 @@ void fmChannel::noteOff() {
 	}
 }
 
+void fmChannel::printChannelDetails() {
+	printf("a: %d\t\tf: %d\n", patch.algorithm, patch.feedback);
+	printf("o--L0---L1---L3---R0---R1---R3----S----Ratio\n");
+	for(uint8_t i = 0; i < MAX_OSC; i++) {
+		printf("%d: %2.2f %2.2f %2.2f %2.2f %2.2f %2.2f %5.2f %2.2f\n", i, patch.ops[i].L0, patch.ops[i].L1, patch.ops[i].L3, patch.ops[i].R0, patch.ops[i].R1, patch.ops[i].R3, patch.ops[i].sustainInSecs, patch.ops[i].ratio);		
+	}
+}
+
+void fmChannel::getOscDetails(uint8_t osc_n, float* array) {
+	if (osc_n >= MAX_OSC) {
+		printf("Osc exceeds MAX_OSC value!\n");
+		assert(false);
+	}
+
+	array[0] = patch.ops[osc_n].L0;
+	array[1] = patch.ops[osc_n].L1;
+	array[2] = patch.ops[osc_n].L3;
+	array[3] = patch.ops[osc_n].R0;
+	array[4] = patch.ops[osc_n].R1;
+	array[5] = patch.ops[osc_n].R3;
+	array[6] = patch.ops[osc_n].sustainInSecs;
+	array[7] = patch.ops[osc_n].ratio;
+}
+
+void fmChannel::setOscDetails(uint8_t osc_n, float* array) {
+	if (osc_n >= MAX_OSC) {
+		printf("Osc exceeds MAX_OSC value!\n");
+		assert(false);
+	}
+
+	patch.ops[osc_n].L0 = array[0]; 
+	patch.ops[osc_n].L1 = array[1];
+	patch.ops[osc_n].L3 = array[2];
+	patch.ops[osc_n].R0 = array[3];
+	patch.ops[osc_n].R1 = array[4];
+	patch.ops[osc_n].R3 = array[5];
+	patch.ops[osc_n].sustainInSecs = array[6];
+	patch.ops[osc_n].ratio = array[7];
+
+	osc[osc_n].adsr.setRatesInSecs(patch.ops[osc_n].R0, patch.ops[osc_n].R1, patch.ops[osc_n].R3);
+	osc[osc_n].adsr.setLevelsInFloat(patch.ops[osc_n].L0, patch.ops[osc_n].L1, patch.ops[osc_n].L3);
+	osc[osc_n].adsr.setSustainInSecs(patch.ops[osc_n].sustainInSecs);
+
+	// Todo: refactor this one!
+	for (uint8_t i = 0; i < MAX_OSC; i++) {
+		osc[i].setFrequency(fmChannelFreqInHz * patch.ops[i].ratio);
+	}
+} 
+
 void fmChannel::setFrequency(float inputFreq) {
+	fmChannelFreqInHz = inputFreq;
 	for (uint8_t i = 0; i < MAX_OSC; i++) {
 		osc[i].setFrequency(inputFreq * patch.ops[i].ratio);
 	}
+}
+
+void fmChannel::selectAlgorithm(uint8_t algorithmNum) {
+	patch.algorithm = algorithmNum;
+	afPtr = fnArray[patch.algorithm];
 }

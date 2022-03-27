@@ -22,8 +22,7 @@
 #include "fmSynth/miditones.h"
 
 #include "fmSynth/fmSynth_main.h"
-
-#define SAMPLES_PER_BUFFER 256
+#include "fmSynth/fmPatchTuner.h"
 
 void configureInterpLanes() {
 	interp_config interpCfg = interp_default_config();
@@ -84,16 +83,18 @@ extern "C"
 static mutex_t mPlayer_M;
 static semaphore_t c1_S;
 
-#ifndef SINE_DEBUG
+#ifdef NO_DEBUG
 fmChannel fm[MAX_FM_CHANNELS] = {fmChannel("E.PIANO"),
                                fmChannel("E.PIANO"),
                                fmChannel("E.PIANO"),
                                fmChannel("E.PIANO"),
                                fmChannel("E.PIANO"),
                                fmChannel("E.PIANO")};
-#else
+#elif defined SINE_DEBUG
 fmChannel fm[1] = {fmChannel("TEST00")};
 #endif
+
+fmChannel fm_patchDebug[1] = {fmChannel("FLUTE")};
 
 void core1_entry()
 {
@@ -124,7 +125,11 @@ void core1_entry()
             tempSample = (int16_t)0;
             for(uint8_t chnNum = 0; chnNum < MAX_FM_CHANNELS; chnNum++) {
                 //absolute_time_t before = get_absolute_time();
+                #ifdef NO_DEBUG
                 tempSample += 128 * fm[chnNum].generateSample() / MAX_FM_CHANNELS;
+                #elif defined PATCH_DEBUG
+                tempSample += 128 * fm_patchDebug[chnNum].generateSample() / MAX_FM_CHANNELS;
+                #endif
                 //absolute_time_t after = get_absolute_time();
                 //printf("generate fm sample: %d\n", (uint32_t)absolute_time_diff_us(before, after))
             }
@@ -148,8 +153,11 @@ int main() {
     stdio_init_all();
 
     uint32_t owner;
+
+    #ifdef NO_DEBUG
     //smallMidiParser sm(sampleMidi, fm);
     PlayTune mdt(sampleMidiTones4, fm);
+    #endif
 
     mutex_init(&mPlayer_M);
     sem_init(&c1_S, 0, 2);
@@ -160,8 +168,11 @@ int main() {
 
     printf("acquire blocking already!\n");
 
-    #ifndef SINE_DEBUG
+    #ifdef NO_DEBUG
     mdt.startPlaying();
+    #elif defined PATCH_DEBUG
+    fmPatchTuner fpt;
+    fm_patchDebug[0].setFrequency(440);
     #endif
 
     // 125MHz:
@@ -176,10 +187,12 @@ int main() {
     // average 4~5 uS for one FM channel!
     while (true)
     {
-        #ifndef SINE_DEBUG
+        #ifdef NO_DEBUG
         mdt.stepScore(&mPlayer_M);
-        #else
+        #elif defined SINE_DEBUG
         sleep_ms(250);
+        #elif defined PATCH_DEBUG
+        fpt.inputSelectLoop();
         #endif
     }
     puts("\n");

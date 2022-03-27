@@ -59,7 +59,6 @@ int32_t Oscillator::op(int32_t inputFeedback)
 
 	if (adsr.getState() != NONE)
 	{
-
 		interp1->base[0] = tuningWord;
 		interp1->accum[0] = accumulator;
 
@@ -95,7 +94,7 @@ int32_t Oscillator::opfb(uint8_t fbShift) {
 		feedback[0] = _result0;
 
 		accumulator = interp1->accum[0];
-
+		
 		fixedPoint outputFP(_result0);
 
 		int32_t output = (int32_t)(outputFP * adsr.envelopeStep());
@@ -106,7 +105,14 @@ int32_t Oscillator::opfb(uint8_t fbShift) {
 		return 0;
 }
 
-int32_t Oscillator::opSineTest() {
+void Oscillator::clearFeedbackArray() {
+	// Clears all the feedback array. Useful for patch debug purpose where the feedbacks have to be cleared after switching algorithms.
+	feedback[0] = 0;
+	feedback[1] = 0;
+}
+
+int32_t Oscillator::opSineTest()
+{
 	// This test is outputting samples of pure sine wave, with the tuningWord.
 	// Set the tuningWord before calling this.
 	// Note: If there aren't any outputs or wrong outputs, check whether the interpolators are properly initialized or not!
@@ -116,17 +122,45 @@ int32_t Oscillator::opSineTest() {
 	interp1->base[0] = SINE_440_TUNING_WORD;
 	interp1->accum[0] = accumulator;
 
-	//printf("osc address: %08x\n", this);
-	//printf("before accumulator: %d\n", accumulator);
+	// printf("osc address: %08x\n", this);
+	// printf("before accumulator: %d\n", accumulator);
 	uint32_t _result2 = interp_pop_full_result(interp1);
 	int32_t _result0 = wavetable1024[(_result2 >> 22) & 0x3ff];
 	accumulator = interp1->accum[0];
-	//printf("after accumulator: %d\n", accumulator);
+	// printf("after accumulator: %d\n", accumulator);
 	printf("%d ,", _result0);
 
 	absolute_time_t after = get_absolute_time();
 
-	//printf("op: time taken -> %d\n", absolute_time_diff_us(before, after));
+	// printf("op: time taken -> %d\n", absolute_time_diff_us(before, after));
+
+	return _result0;
+}
+
+int32_t Oscillator::opSineFbTest(uint8_t fbShift)
+{
+	// This test is outputting samples of sine wave with feedback, with the tuningWord.
+	// Set the tuningWord before calling this.
+	// Note: If there aren't any outputs or wrong outputs, check whether the interpolators are properly initialized or not!
+
+	absolute_time_t before = get_absolute_time();
+
+	int32_t scaled_fb = (feedback[0] + feedback[1]) >> (fbShift + 1);
+	feedback[1] = feedback[0];
+
+	interp1->base[0] = SINE_440_TUNING_WORD;
+	interp1->accum[0] = accumulator;
+
+	uint32_t _result2 = interp_pop_full_result(interp1);
+	int32_t _result0 = wavetable1024[((_result2 >> 22) + scaled_fb) & 0x3ff];
+
+	printf("%d ,", _result0);
+
+	feedback[0] = _result0;
+
+	accumulator = interp1->accum[0];
+
+	absolute_time_t after = get_absolute_time();
 
 	return _result0;
 }

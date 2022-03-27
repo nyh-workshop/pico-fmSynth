@@ -153,6 +153,7 @@ T Envelope<T>::envelopeStep() {
 	constexpr bool isFloat = std::is_same_v<T, float>;
 	constexpr bool isFixedPoint = std::is_same_v<T, fixedPoint>;
     
+	// Calculating twice (current and next) because we need these for the linear interpolation! :D
 	if (envCount >= tenMsTick) {
 		envCount = 0;
 
@@ -180,7 +181,6 @@ T Envelope<T>::envelopeStep() {
 		//return volume;
 	}
 }
-
 
 template <typename T>
 void Envelope<T>::setLevels(T inputL0, T inputL1, T inputL3) {
