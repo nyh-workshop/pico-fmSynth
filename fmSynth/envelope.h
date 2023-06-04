@@ -1,12 +1,11 @@
 #ifndef _ENVELOPE_H
 #define _ENVELOPE_H
 
-//#include "fmSynth_main.h"
-#include "fmSynth_main.h"
+#include "fmSynth.h"
 #include "stdio.h"
 #include "math.h"
 
-const uint32_t tenMsTick = (uint32_t)(0.01f * (float)SAMPLE_RATE);
+const uint32_t tenMsTick = (uint32_t)(0.01f * (float)FMSYNTH_SAMPLE_RATE);
 
 enum EnvelopeState { NONE = 0, ATTACK, DECAY, SUSTAIN, RELEASE };
 

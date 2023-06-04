@@ -17,7 +17,7 @@ fmChannel::fmChannel() {
 	}
 }
 
-fmChannel::fmChannel(std::string patchName) {
+void fmChannel::setChannelInstrument(std::string patchName) {
 
 	struct fmPatch inputPatch;
 

@@ -4,7 +4,7 @@ int16_t wavetable1024[1024];
 
 bool Oscillator::wavetableFilled = false;
 
-constexpr uint32_t SINE_440_TUNING_WORD = ((uint64_t)UINT32_MAX * 440ul) / SAMPLE_RATE; 
+constexpr uint32_t SINE_440_TUNING_WORD = ((uint64_t)UINT32_MAX * 440ul) / FMSYNTH_SAMPLE_RATE; 
 
 Oscillator::Oscillator() {
 	printf("osc create!\n");
@@ -50,7 +50,7 @@ void Oscillator::configureInterpLanes() {
 }
 
 void Oscillator::setFrequency(float inputFreq) {
-	tuningWord = ceil(inputFreq * pow(2, 32) / (float)SAMPLE_RATE);
+	tuningWord = ceil(inputFreq * pow(2, 32) / (float)FMSYNTH_SAMPLE_RATE);
 	//printf("tuningWord: %f\n", (float)tuningWord);
 }
 

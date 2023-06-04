@@ -23,7 +23,7 @@ public:
 
 	// Default fm channel settings: all zeros!
 	fmChannel();
-	fmChannel(std::string patchName);
+	void setChannelInstrument(std::string patchName);
 	void noteOn();
 	void noteOff();
 	void setFrequency(float inputFreq);

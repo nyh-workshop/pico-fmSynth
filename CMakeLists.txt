@@ -25,24 +25,24 @@ project(pico-fmSynth C CXX ASM)
 pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
-add_executable(pico-fmSynth pico-fmSynth.cpp audio_i2s.c
-fmSynth/fmSynth_main.cpp
+add_executable(pico-fmSynth main.cpp fmSynth_picoI2sAudioDriver.cpp
+audio_i2s/audio_i2s.c
+fmSynth/fmSynth.cpp
 fmSynth/envelope.cpp
 fmSynth/oscillator.cpp
 fmSynth/fmChannel.cpp
 fmSynth/patch.cpp
-fmSynth/miditones.cpp
-fmSynth/midiFreqTable.c
-fmSynth/fmPatchTuner.cpp
+miditones/miditones.cpp
+miditones/midiFreqTable.c
 sampleMidi.c)
 
-pico_generate_pio_header(pico-fmSynth ${CMAKE_CURRENT_LIST_DIR}/audio_i2s.pio)
+pico_generate_pio_header(pico-fmSynth ${CMAKE_CURRENT_LIST_DIR}/audio_i2s/audio_i2s.pio)
 
 pico_set_program_name(pico-fmSynth "pico-fmSynth")
-pico_set_program_version(pico-fmSynth "0.4_interp")
+pico_set_program_version(pico-fmSynth "1.0_interp")
 
-pico_enable_stdio_uart(pico-fmSynth 1)
-pico_enable_stdio_usb(pico-fmSynth 0)
+pico_enable_stdio_uart(pico-fmSynth 0)
+pico_enable_stdio_usb(pico-fmSynth 1)
 
 #target_compile_options(pico-fmSynth PRIVATE -H)
 

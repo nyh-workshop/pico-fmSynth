@@ -1,7 +1,7 @@
 #ifndef _PATCH_H
 #define _PATCH_H
 
-#include "fmSynth_main.h"
+#include "fmSynth.h"
 
 // OpSettings' variables appear in float data type to facilitate reading!
 // These are converted into their respective fixed points data type in the Envelope later! 
