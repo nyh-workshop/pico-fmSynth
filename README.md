@@ -18,7 +18,7 @@ This branch uses the **RP2040's interpolator module** to generate the sine wave 
 
 Only **4 operators** are used, and each of the operator has an envelope for each FM channel. [Reference](https://asb2m10.github.io/dexed/). A lot of CPU time are being spent on working on each of these channel.
 
-Len Shustek's [Miditones](https://github.com/LenShustek/miditones) is used in this demonstration.
+Len Shustek's [Miditones](https://github.com/LenShustek/miditones) is used in this demonstration. For this branch (interp_oneCore) a single core is used and the timer interrupt is to track the score rather than having another core to wait for it.
 
 There are clicking noises between note switches - this is mitigated by using an older version of the Miditones (v1.12) where there are note stops before the note change happens. This note stops allow the brief release of the note in the envelope generator and significantly minimizes the unpleasent noise.
 

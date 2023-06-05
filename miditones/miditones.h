@@ -20,6 +20,7 @@ public:
     inline void startPlaying();
     inline bool isPlaying() { return tune_playing; }
     inline void setNoteAdjust(int8_t noteAdj) { noteAdjust = noteAdj; }
+    inline uint32_t getNoteDurationMs() { return noteDurationMs; }
     void stepScore();
     
     // static compilation virtual:
@@ -37,7 +38,8 @@ private:
     int8_t noteAdjust = 0;
     uint8_t score_start = 0;
     uint8_t* score;
-    uint32_t score_cursor;  
+    uint32_t score_cursor;
+    uint32_t noteDurationMs = 0;
 };
 
 template <typename T>
@@ -145,8 +147,9 @@ void PlayTune<T>::stepScore()
         if (cmd < 0x80)
         { /* wait count in msec. */
             durationMs = ((unsigned)cmd << 8) | (score[score_cursor++]);
+            noteDurationMs = durationMs;
 
-            sleepMs(durationMs);
+            //sleepMs(durationMs);
 #if DBUG
             Serial.print("wait ");
             Serial.print(duration);
@@ -166,7 +169,7 @@ void PlayTune<T>::stepScore()
             // printf("note off event! number: %d\n", chan);
             //mutexExit();
 
-            sleepMs(10);
+            //sleepMs(10);
         }
         else if (opcode == CMD_PLAYNOTE)
         {                                 /* play note */

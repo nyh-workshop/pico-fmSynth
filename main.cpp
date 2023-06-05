@@ -43,38 +43,51 @@ void configureInterpLanes() {
 static mutex_t mPlayer_M;
 static semaphore_t c1_S;
 
+volatile uint32_t durationMs = 0;
+bool repeating_timer_callback(struct repeating_timer *t) {
+    if(durationMs >= ((fmSynthPicoI2s*)t->user_data)->getNoteDurationMs())
+    {
+        durationMs = 0;
+        ((fmSynthPicoI2s*)t->user_data)->stepScore();
+    }
+    else
+        durationMs++;
+    return true;
+}
+
 void core1_entry()
 {
     printf("Entering core1! :D\n");
     uint32_t owner;
 
+    fmSynthPicoI2s tunePlayer;
+
+    tunePlayer.playScore(sampleMidiTones);
+
+    struct repeating_timer timer;
+    add_repeating_timer_ms(-1, repeating_timer_callback, &tunePlayer, &timer);
+
     // RP2040's interpolator module needs to be configured at the respective core before running.
     configureInterpLanes();
 
-    printf("Waiting for tunePlayer ptr from core0!\n");
-
-    // Getting this tunePlayerPtr pointer from core0!
-    uint32_t tunePlayerPtr = multicore_fifo_pop_blocking();
-
-    printf("Received! tunePlayerPtr: 0x%x\n", tunePlayerPtr);
-
     sem_release(&c1_S);
-
-    if ((fmSynthPicoI2s*)tunePlayerPtr == nullptr)
-        panic("tunePlayerPtr for core1 is nullptr!\n");
 
     printf("releasing semaphore now!\n");
 
     while (1)
     {
-        if (!mutex_try_enter(&mPlayer_M, &owner))
+        if(tunePlayer.isPlaying())
+            tunePlayer.playSamples();
+        else
         {
-            //printf("at core 1 - locked, owner: %d, core_num: %d\n", owner, get_core_num());
-            mutex_enter_blocking(&mPlayer_M);
+            static bool callTimerCancelledOnce;
+            if(!callTimerCancelledOnce)
+            {
+                callTimerCancelledOnce = true;
+                cancel_repeating_timer(&timer);
+            }
+            sleep_ms(500);
         }
-        ((fmSynthPicoI2s*)tunePlayerPtr)->playSamples();
-        mutex_exit(&mPlayer_M);
-        //printf("give audio buffer!\n");
     }
 }
 
@@ -93,8 +106,6 @@ int main() {
         sleep_ms(100);
     printf("\nUSB Serial connected!\n");
 
-    fmSynthPicoI2s tunePlayer;
-
     uint32_t owner;
 
     mutex_init(&mPlayer_M);
@@ -102,14 +113,9 @@ int main() {
 
     multicore_launch_core1(core1_entry);
 
-    printf("Starting, sending tunePlayer ptr to core1!: 0x%x\n", (uintptr_t)&tunePlayer);
-    multicore_fifo_push_blocking((uintptr_t)&tunePlayer);
-
     sem_acquire_blocking(&c1_S);
 
-    printf("Core1 gets the tunePlayerPtr already! Now playing!\n");
-
-    tunePlayer.playScore(sampleMidiTones3);
+    printf("Core1 now playing tune!\n");
 
     // 125MHz:
     // average 3~4 uS for one operator!
@@ -123,7 +129,7 @@ int main() {
     // average 4~5 uS for one FM channel!
     while (true)
     {
-        tunePlayer.stepScore();
+        sleep_ms(500);
     }
     puts("\n");
     return 0;
