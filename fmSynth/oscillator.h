@@ -2,10 +2,6 @@
 #define _OSCILLATOR_H
 
 #include "envelope.h"
-#include "hardware/interp.h"
-
-#include <math.h>
-#include "pico/stdlib.h"
 
 // https://dev.to/noah11012/start-using-asserts-452c
 //#define assert(expression) if(expression == false) printf("assert failed!\n"); exit(1)

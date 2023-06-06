@@ -1,6 +1,7 @@
 #ifndef _FMCHANNEL_H
 #define _FMCHANNEL_H
 
+#include "fmSynth.h"
 #include "oscillator.h"
 #include "patch.h"
 

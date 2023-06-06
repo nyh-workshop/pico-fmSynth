@@ -7,7 +7,6 @@
 
 #include "audio_i2s/picoI2sAudio.h"
 #include "miditones/miditones.h"
-#include "fmSynth/fmSynth.h"
 #include "fmSynth/fmChannel.h"
 
 class fmSynthPicoI2s : public PicoI2sAudio<fmSynthPicoI2s>, public PlayTune<fmSynthPicoI2s> {
