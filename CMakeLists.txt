@@ -25,8 +25,9 @@ project(pico-fmSynth C CXX ASM)
 pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
-add_executable(pico-fmSynth main.cpp fmSynth_picoI2sAudioDriver.cpp
+add_executable(pico-fmSynth main.cpp 
 audio_i2s/audio_i2s.c
+driver/fmSynth_picoI2sAudioDriver.cpp
 fmSynth/fmSynth.cpp
 fmSynth/envelope.cpp
 fmSynth/oscillator.cpp
@@ -34,7 +35,7 @@ fmSynth/fmChannel.cpp
 fmSynth/patch.cpp
 miditones/miditones.cpp
 miditones/midiFreqTable.c
-sampleMidi.c)
+miditonesFile/sampleMidi.c)
 
 pico_generate_pio_header(pico-fmSynth ${CMAKE_CURRENT_LIST_DIR}/audio_i2s/audio_i2s.pio)
 

@@ -17,9 +17,9 @@
 #include "pico/multicore.h"
 #include "pico/sem.h"
 
-#include "sampleMidi.h"
+#include "miditonesFile/sampleMidi.h"
 
-#include "fmSynth_picoI2sAudioDriver.h"
+#include "driver/fmSynth_picoI2sAudioDriver.h"
 
 void configureInterpLanes() {
 	interp_config interpCfg = interp_default_config();
