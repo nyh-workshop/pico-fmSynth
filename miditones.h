@@ -1,6 +1,7 @@
 #ifndef MIDITONES_H
 #define MIDITONES_H
 
+#include <Arduino.h>
 #include <stdio.h>
 #include <cstdint>
 #include "midiFreqTable.h"
@@ -143,7 +144,7 @@ void PlayTune<T>::stepScore()
     while (tune_playing)
     {
         cmd = score[score_cursor++];
-        printf("cmd: 0x%x\r\n", cmd);
+        Serial.printf("cmd: 0x%x\r\n", cmd);
         if (cmd < 0x80)
         { /* wait count in msec. */
             durationMs = ((unsigned)cmd << 8) | (score[score_cursor++]);
@@ -177,7 +178,7 @@ void PlayTune<T>::stepScore()
             if (volume_present)
                 ++score_cursor; // ignore volume if present
 
-            printf("noteOn: %d, chan: %d\r\n", note, chan);    
+            Serial.printf("noteOn: %d, chan: %d\r\n", note, chan);    
 			
             //mutexTryEnter();
             noteOn(chan, note);

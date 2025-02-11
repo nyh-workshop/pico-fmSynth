@@ -13,4 +13,6 @@ extern const uint8_t sampleMidiTones4[];
 
 extern const uint8_t sampleMidiTonesTest[];
 
+extern const uint8_t mdtFile1[];
+
 #endif

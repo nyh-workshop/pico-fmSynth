@@ -7,7 +7,7 @@ bool Oscillator::wavetableFilled = false;
 constexpr uint32_t SINE_440_TUNING_WORD = ((uint64_t)UINT32_MAX * 440ul) / FMSYNTH_SAMPLE_RATE; 
 
 Oscillator::Oscillator() {
-	printf("osc create!\n");
+	Serial1.println("osc create!");
 
 	// Fill this wavetable once! :D
 	if (!wavetableFilled)
@@ -27,26 +27,7 @@ Oscillator::Oscillator() {
 }
 
 Oscillator::~Oscillator() {
-	printf("osc delete!\n");
-}
-
-void Oscillator::configureInterpLanes() {
-	interp_config interpCfg = interp_default_config();
-
-	// Lane 0 settings:
-    interp_config_set_add_raw(&interpCfg, true);
-    interp_config_set_cross_input(&interpCfg, 0);
-    interp_config_set_mask(&interpCfg, 22, 31);
-    interp_config_set_shift(&interpCfg, 0);
-    interp_config_set_signed(&interpCfg, false);
-    interp_set_config(interp1, 0, &interpCfg);
-    // Lane 1 settings:
-    interp_config_set_add_raw(&interpCfg, true);
-    interp_config_set_cross_input(&interpCfg, 0);
-    interp_config_set_mask(&interpCfg, 0, 9);
-    interp_config_set_shift(&interpCfg, 22);
-    interp_config_set_signed(&interpCfg, false);
-    interp_set_config(interp1, 1, &interpCfg);
+	Serial1.println("osc delete!");
 }
 
 void Oscillator::setFrequency(float inputFreq) {
@@ -68,9 +49,14 @@ int32_t Oscillator::op(int32_t inputFeedback)
 
 		accumulator = interp1->accum[0];
 
+		// I don't even know what's making that screeching noise when Fixed Point is enabled for RP2350!
+    #if defined(RP2040_SDK)
 		fixedPoint outputFP(_result0);
-
-		int32_t output = (int32_t)(outputFP * adsr.envelopeStep());
+    int32_t output = (int32_t)(outputFP * adsr.envelopeStep());    
+    #elif defined(RP2350_ARDUINO)
+    float outputFloat = float(_result0);
+    int32_t output = (int32_t)(outputFloat * adsr.envelopeStep());
+    #endif
 
 		return output;
 	}
@@ -95,9 +81,14 @@ int32_t Oscillator::opfb(uint8_t fbShift) {
 
 		accumulator = interp1->accum[0];
 		
+    // I don't even know what's making that screeching noise when Fixed Point is enabled for RP2350!
+    #if defined(RP2040_SDK)
 		fixedPoint outputFP(_result0);
-
-		int32_t output = (int32_t)(outputFP * adsr.envelopeStep());
+    int32_t output = (int32_t)(outputFP * adsr.envelopeStep());    
+    #elif defined(RP2350_ARDUINO)
+    float outputFloat = float(_result0);
+    int32_t output = (int32_t)(outputFloat * adsr.envelopeStep());
+    #endif
 
 		return output;
 	}
@@ -114,7 +105,6 @@ void Oscillator::clearFeedbackArray() {
 int32_t Oscillator::opSineTest()
 {
 	// This test is outputting samples of pure sine wave, with the tuningWord.
-	// Set the tuningWord before calling this.
 	// Note: If there aren't any outputs or wrong outputs, check whether the interpolators are properly initialized or not!
 
 	absolute_time_t before = get_absolute_time();
@@ -128,7 +118,7 @@ int32_t Oscillator::opSineTest()
 	int32_t _result0 = wavetable1024[(_result2 >> 22) & 0x3ff];
 	accumulator = interp1->accum[0];
 	// printf("after accumulator: %d\n", accumulator);
-	printf("%d ,", _result0);
+	// printf("%d ,", _result0);
 
 	absolute_time_t after = get_absolute_time();
 

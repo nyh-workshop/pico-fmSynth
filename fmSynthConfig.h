@@ -1,0 +1,21 @@
+#ifndef _FMSYNTHCONFIG_H
+#define _FMSYNTHCONFIG_H
+
+#include "FpF.hpp"
+
+#define RP2350_ARDUINO
+// #define RP2040_SDK
+
+#if defined(RP2040_SDK)
+#define FMSYNTH_SAMPLE_RATE 22050
+#elif defined(RP2350_ARDUINO)
+#define FMSYNTH_SAMPLE_RATE 44100
+#endif
+
+#define MAX_FM_CHANNELS 6
+
+#define SAMPLES_PER_BUFFER 256
+
+typedef mn::MFixedPoint::FpF32<16> fixedPoint;
+
+#endif

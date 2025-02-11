@@ -1,20 +1,27 @@
 #ifndef FMSYNTH_PICOI2SAUDIODRIVER_H
 #define FMSYNTH_PICOI2SAUDIODRIVER_H
 
+#include <Arduino.h>
+
 #include "pico/util/queue.h"
 #include "pico/multicore.h"
 #include "pico/sem.h"
 
-#include "../audio_i2s/picoI2sAudio.h"
-#include "../miditones/miditones.h"
-#include "../fmSynth/fmChannel.h"
+#include "picoI2sAudio.h"
+#include "miditones.h"
+#include "fmChannel.h"
 
 class fmSynthPicoI2s : public PicoI2sAudio<fmSynthPicoI2s>, public PlayTune<fmSynthPicoI2s> {
     public:
-        fmSynthPicoI2s();
+        fmSynthPicoI2s(bool testMode);
+        ~fmSynthPicoI2s();
 
         // Pico I2S functions:
         int16_t getSample();
+        int16_t getSampleTest();
+
+        //
+        void configureInterpLanes();
 
         // MidiTones functions:
         inline void noteOff(uint8_t chan);

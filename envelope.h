@@ -1,7 +1,13 @@
 #ifndef _ENVELOPE_H
 #define _ENVELOPE_H
 
-#include "fmSynth.h"
+#include <Arduino.h>
+#include <math.h>
+
+#include "pico/stdlib.h"
+
+#include "fmSynthConfig.h"
+#include "FpF.hpp"
 
 const uint32_t tenMsTick = (uint32_t)(0.01f * (float)FMSYNTH_SAMPLE_RATE);
 
@@ -54,7 +60,7 @@ private:
 template <typename T>
 Envelope<T>::Envelope() {
 	// all starts at zero at test!
-	printf("Creating envelope!\n");
+	Serial.println("Creating envelope!");
 
 	// Compatible data types: float and fixed point!
 	constexpr bool isFloat = std::is_same_v<T, float>;
@@ -89,7 +95,7 @@ Envelope<T>::Envelope() {
 
 template <typename T>
 Envelope<T>::~Envelope() {
-	printf("Deleting envelope!\n");
+	Serial.println("Deleting envelope!");
 }
 
 template <typename T>
@@ -232,7 +238,7 @@ void Envelope<T>::setRatesInSecs(float inputR0_s, float inputR1_s, float inputR3
 	// set for decay:
 	float numOfSamplesForDecay = inputR1_s / (float)(0.01f);
 	float temp1 = (-log((float)L1) / numOfSamplesForDecay);
-	printf("numOfSamplesForDecay: %f\n", numOfSamplesForDecay);
+	//Serial.printf("numOfSamplesForDecay: %f\n", numOfSamplesForDecay);
 	//printf("temp1: %f\n", temp1);
 	//R1 = (T)exp(-temp1);
 
@@ -256,9 +262,9 @@ void Envelope<T>::setRatesInSecs(float inputR0_s, float inputR1_s, float inputR3
 		R3 = (fixedPoint)exp(-temp2);
 	}
 
-	printf("R0: %f\n", (float)R0);
-	printf("R1: %f\n", (float)R1);
-	printf("R3: %f\n", (float)R3);
+	//printf("R0: %f\n", (float)R0);
+	//printf("R1: %f\n", (float)R1);
+	//printf("R3: %f\n", (float)R3);
 }
 
 template <typename T>

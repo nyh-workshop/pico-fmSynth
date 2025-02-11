@@ -1,28 +1,45 @@
-# Raspberry Pico Simple FM synth
+# Raspberry Pico 2 Simple FM synth (Prototype Arduino Branch for RP2350)
 
-This is a simple DX-9 style 6-channel FM synth for the Raspberry Pico.
+This is a simple DX-9 style 6-channel FM synth for the Raspberry Pico 2.
 
 Requirements:
-- Raspberry Pico SDK
-- Pico-Extras (https://github.com/raspberrypi/pico-extras)
+- Arduino IDE 2.3.2 and above
+- Raspberry Pi RP2040/RP2350 board library (4.1.1) 
 - I2S DAC (PCM5102)
-- USB connection for UART
+- USB connection for UART, FM synth module at Serial1
 
-Due to the lack of floating point unit in the Raspberry Pico, fixed points are used instead. Fixed point library: [MFixedPoint](https://github.com/gbmhunter/MFixedPoint)
+Floating point is used for this Raspberry Pico 2 with ARM Cortex-M33 cores.
 
-The sampling rate is limited to 22050Hz because the resolution of the fixed point is only at 15:16.
+**RISC-V cores are not supported for now. This will be done when porting is fully complete.**
 
 The sounds and patches being output are not exactly DX-9 - it's only a **rough approximation** of that instrument. The envelope generator is a rudimentary ADSR state machine and it is not based on the more complicated designs of those of the other DX series. With that limited sampling rate and resolution, some of the patches may sound off if compared to listening to the actual DX-7 or DX-9 ones.
 
-This branch uses the **RP2040's interpolator module** to generate the sine wave using DDS. The interpolator for now is using only one lane. The interpolator module has to be shared by 4 other operators, and it is multiplexed by saving and restoring the accumulators on each sample.
+This branch uses the **RP2350's interpolator module** to generate the sine wave using DDS. The interpolator for now is using only one lane. The interpolator module has to be shared by 4 other operators, and it is multiplexed by saving and restoring the accumulators on each sample.
 
-Only **4 operators** are used, and each of the operator has an envelope for each FM channel. [Reference](https://asb2m10.github.io/dexed/). A lot of CPU time are being spent on working on each of these channel.
+Only **4 operators** are used, and each of the operator has an envelope for each FM channel: [Dexed Reference](https://asb2m10.github.io/dexed/). Currently, it is using 1~3uS to generate one sample on the channel.
 
-Len Shustek's [Miditones](https://github.com/LenShustek/miditones) is used in this demonstration. For this branch (interp_oneCore) a single core is used and the timer interrupt is to track the score rather than having another core to wait for it.
+Len Shustek's [Miditones](https://github.com/LenShustek/miditones) is used in this demonstration. For this branch (RP2350 Arduino) a single core is used and the timer interrupt is to track the score rather than having another core to wait for it.
 
 There are clicking noises between note switches - this is mitigated by using an older version of the Miditones (v1.12) where there are note stops before the note change happens. This note stops allow the brief release of the note in the envelope generator and significantly minimizes the unpleasent noise.
 
+***Update 08-Feb-2025*** - This is being ported to RP2350 and for Arduino platform. Sine test module added for convenience.
+
 ***Update 04-June-2023*** - A very large part of the code has been restructured - modules are now more isolated and clearly defined. The interpolator module is still coupled to the Oscillator - more plans to separate this too in the future. However, it is decided that the part where you can create and modify patches has been removed and planned to be relocated to another separate app. If you need to still create patches, you can check the following instructions. :D
+
+## Sine test
+Due to the difficulty of porting this to another architecture and/or platform, a short sine test is inserted inside. There should be only a 440Hz sine wave being output when you add 'True' when you init the object in that way:
+
+```
+fmSynthPicoI2s tunePlayer(True);
+
+while(1)
+{
+    tunePlayer.playSamples();
+}
+```
+
+## Future expansions
+Adding a LittleFS and a midi parser can be more ideal and convenient too, since it is now running on Arduino platform.
 
 ## Instructions for creating and modifying custom patches (use commit [4b1e62](https://github.com/nyh-workshop/pico-fmSynth/commit/4b1e622bf7494a5b7b671c2d291cbe83a93ac167)) :
 

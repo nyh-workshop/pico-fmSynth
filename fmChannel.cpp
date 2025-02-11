@@ -2,6 +2,7 @@
 
 fmChannel::fmChannel() {
 	// all the items in patch are zero!
+  Serial1.println("fmChannel create!");
 	patch.name = (char*)"Default";
 	//patch.name = "Default";
 	patch.algorithm = 0;
@@ -39,6 +40,7 @@ void fmChannel::setChannelInstrument(std::string patchName) {
 	if (patch.name == "Default")
 	{
 		// No such patch found! Assert here!
+    Serial1.println("No such patch here!");
 		assert(false);
 	}
 	else
@@ -49,7 +51,7 @@ void fmChannel::setChannelInstrument(std::string patchName) {
 			patch.ops[i] = inputPatch.ops[i];
 		}
 		for (uint8_t i = 0; i < MAX_OSC; i++) {
-			printf("%f %f %f \n", patch.ops[i].R0, patch.ops[i].R1, patch.ops[i].R3);
+			// Serial.printf("%f %f %f \n", patch.ops[i].R0, patch.ops[i].R1, patch.ops[i].R3);
 			// Load the levels first!
 			osc[i].adsr.setLevelsInFloat(patch.ops[i].L0, patch.ops[i].L1, patch.ops[i].L3);
 			osc[i].adsr.setRatesInSecs(patch.ops[i].R0, patch.ops[i].R1, patch.ops[i].R3);
@@ -60,10 +62,10 @@ void fmChannel::setChannelInstrument(std::string patchName) {
 		if(!afPtr)
 		{
 			// If the algorithm is not available, assert.
-			printf("algorithm not available!\n");
+			Serial.println("algorithm not available!");
 			assert(false);
 		} 
-		printf("Patch Name: %s\n", patch.name);
+		Serial.printf("Patch Name: %s\n", patch.name);
 	}
 }
 
@@ -169,7 +171,7 @@ int32_t fmChannel::algorithm8() {
 
 int32_t fmChannel::generateSample() {
 	int32_t output = 0;
-	output = (this->*afPtr)();
+  output = (this->*afPtr)();
 	//output = (*afPtr)();
 	return output;
 }
