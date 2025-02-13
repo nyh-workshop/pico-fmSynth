@@ -27,6 +27,10 @@ class fmSynthPicoI2s : public PicoI2sAudio<fmSynthPicoI2s>, public PlayTune<fmSy
         inline void noteOff(uint8_t chan);
         inline void noteOn(uint8_t chan, uint8_t num);
 
+        // Midi functions (velocity not supported for now):
+        void midiNoteOff(uint8_t num);
+        void midiNoteOn(uint8_t num);
+
         // Microcontroller SDK specific functions:
         inline void mutexTryEnter();
         inline void mutexExit();

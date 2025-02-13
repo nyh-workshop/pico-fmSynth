@@ -34,6 +34,13 @@ public:
   int32_t generateTestSineSample();
   void selectAlgorithm(uint8_t algorithmNum);
 
+  // For Midi Player only:
+  inline void setIsPlaying() { isPlaying = true; }
+  inline void clearIsPlaying() { isPlaying = false; }
+  inline bool getIsPlaying() { return isPlaying; }
+  inline void setMidiNoteNum(uint8_t num) { midiNote = num; }
+  inline uint8_t getMidiNoteNum() { return midiNote; }
+
   // For patch diagnostics only!
   void printChannelDetails();
   void getOscDetails(uint8_t osc, float* array);
@@ -45,6 +52,11 @@ public:
 private:
   float fmChannelFreqInHz;
   int32_t fmChannelOutput;
+  
+  // For using Midi player instead of MidiTones:
+  bool isPlaying = false;
+  uint8_t midiNote = 0;
+  
   fmPatch patch;
   sineTestType sineTest = SINE_ONLY;
 

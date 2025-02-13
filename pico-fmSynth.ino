@@ -11,6 +11,9 @@
 #include <math.h>
 #include <tusb.h>
 
+#include <LittleFS.h>
+#include <MD_MIDIFile.h>
+
 #include "hardware/clocks.h"
 #include "hardware/irq.h"
 #include "hardware/structs/clocks.h"
@@ -24,58 +27,41 @@
 
 #include "fmSynth_picoI2sAudioDriver.h"
 
-static mutex_t mPlayer_M;
-static semaphore_t c1_S;
+fmSynthPicoI2s* tPlayer = nullptr;
+MD_MIDIFile SMF;
 
-volatile uint32_t durationMs = 0;
-bool repeating_timer_callback(struct repeating_timer *t) {
-    if(durationMs >= ((fmSynthPicoI2s*)t->user_data)->getNoteDurationMs())
-    {
-        durationMs = 0;
-        ((fmSynthPicoI2s*)t->user_data)->stepScore();
-    }
-    else
-        durationMs++;
-    return true;
-}
-
-void core1_entry()
+void midiCallback(midi_event *pev)
+// Called by the MIDIFile library when a file event needs to be processed
+// thru the midi communications interface.
+// This callback is set up in the setup() function.
 {
-    Serial.println("Entering core1! :D\n");
-    uint32_t owner;
+  // Define constants for MIDI channel voice message IDs
+  const uint8_t NOTE_OFF = 0x80;  // note on
+  const uint8_t NOTE_ON = 0x90;   // note off. NOTE_ON with velocity 0 is same as NOTE_OFF
 
-    fmSynthPicoI2s tunePlayer(false);
+  switch (pev->data[0]) {
+    case NOTE_OFF:  // [1]=note no, [2]=velocity
+      // playNote(pev->data[1], SILENT);
+      // tPlayer->noteOff(pev->channel);
+      tPlayer->midiNoteOff(pev->data[1]);
+      printf("NOTE_OFF ch: %d\n", pev->data[1]);
+      break;
 
-    tunePlayer.playScore(mdtFile1);
+    case NOTE_ON:  // [1]=note_no, [2]=velocity
+      // Note ON with velocity 0 is the same as off
+      // playNote(pev->data[1], (pev->data[2] == 0) ? SILENT : ACTIVE);
+      // tPlayer->noteOn(pev->channel, pev->data[1]);
+      // Velocity is not included for now!
+      tPlayer->midiNoteOn(pev->data[1]);
+      printf("NOTE_ON trk: %d, ch: %d, no: %d\n", pev->track, pev->channel, pev->data[1]);
+      break;
 
-    struct repeating_timer timer;
-    add_repeating_timer_ms(-1, repeating_timer_callback, &tunePlayer, &timer);
-
-    // RP2040's interpolator module needs to be configured at the respective core before running.
-    // configureInterpLanes();
-
-    sem_release(&c1_S);
-
-    Serial.println("releasing semaphore now!\n");
-
-    while (1)
-    {
-        if(tunePlayer.isPlaying())
-            tunePlayer.playSamples();
-        else
-        {
-            static bool callTimerCancelledOnce;
-            if(!callTimerCancelledOnce)
-            {
-                callTimerCancelledOnce = true;
-                cancel_repeating_timer(&timer);
-            }
-            sleep_ms(500);
-        }
-    }
+    default:
+      break;
+  }
 }
 
-// fmSynthPicoI2s* fmSynth;
+static enum { S_IDLE, S_PLAYING } state = S_IDLE;
 
 void setup() {
   // uint32_t owner;
@@ -84,18 +70,31 @@ void setup() {
 
   delay(1000);
 
-  // fmSynth = new fmSynthPicoI2s(true);
+  tPlayer = new fmSynthPicoI2s(false);
 
-  mutex_init(&mPlayer_M);
-  sem_init(&c1_S, 0, 2);
+  // Initialize LittleFS:
+  if(!LittleFS.begin())
+  {
+    Serial.println("LittleFS init fail!");
+    while(1);
+  }
 
-  multicore_launch_core1(core1_entry);
+  // Initialize MIDIFile:
+  SMF.begin(&LittleFS);
+  SMF.setMidiHandler(midiCallback);
 
-  sem_acquire_blocking(&c1_S);
+  Serial.println("Start playing song now!");
 
-  Serial.println("Core1 now playing tune!");
-  
-  Serial.println("Setup done!");
+  // Load a MIDI file from there:
+  int err = SMF.load("AiWaKatsu.mid");
+
+  if (err != MD_MIDIFile::E_OK)
+  {    
+    Serial.printf("SMF load error: %d", err);
+    while(1);
+  }
+
+  state = S_PLAYING;
 }
 
 void loop() {
@@ -114,5 +113,22 @@ void loop() {
   // RP2350 interpolator (44100Hz), with floating point:
   // 150MHz:
   // average 1~3us for one FM channel!
-  delay(500);
+  switch (state) {
+    case S_IDLE:
+      delay(500);
+      break;
+    case S_PLAYING:
+      tPlayer->playSamples();
+      if (!SMF.isEOF()) {
+        SMF.getNextEvent();
+      }
+      else
+      {
+        Serial.println("Playing done! Idle mode now...");
+        state = S_IDLE;
+      }
+      break;
+    default:
+      break;
+  }
 }

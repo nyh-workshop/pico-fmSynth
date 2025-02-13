@@ -4,9 +4,11 @@ This is a simple DX-9 style 6-channel FM synth for the Raspberry Pico 2.
 
 Requirements:
 - Arduino IDE 2.3.2 and above
-- Raspberry Pi RP2040/RP2350 board library (4.1.1) 
+- Raspberry Pi RP2040/RP2350 board library (4.1.1)
 - I2S DAC (PCM5102)
-- USB connection for UART, FM synth module at Serial1
+- Modified MajicDesigns' [MD_MIDIFile](https://github.com/nyh-workshop/MD_MIDIFile) library to play MIDI files from LittleFS (Flash size: 128KB)
+- [arduino-littlefs-upload extension](https://github.com/earlephilhower/arduino-littlefs-upload)
+- USB connection for UART, FM synth module debug outputs at Serial1
 
 Floating point is used for this Raspberry Pico 2 with ARM Cortex-M33 cores.
 
@@ -18,9 +20,22 @@ This branch uses the **RP2350's interpolator module** to generate the sine wave 
 
 Only **4 operators** are used, and each of the operator has an envelope for each FM channel: [Dexed Reference](https://asb2m10.github.io/dexed/). Currently, it is using 1~3uS to generate one sample on the channel.
 
-Len Shustek's [Miditones](https://github.com/LenShustek/miditones) is used in this demonstration. For this branch (RP2350 Arduino) a single core is used and the timer interrupt is to track the score rather than having another core to wait for it.
+Using MajicDesigns' [MIDI parser](https://github.com/nyh-workshop/MD_MIDIFile) with LittleFS support instead of MidiTones. Currently figuring out how to display and check MIDI info before playing the MIDI file. Some MIDI files might not play properly in the system and it is currently being investigated too.
 
-There are clicking noises between note switches - this is mitigated by using an older version of the Miditones (v1.12) where there are note stops before the note change happens. This note stops allow the brief release of the note in the envelope generator and significantly minimizes the unpleasent noise.
+## Installation and usage instructions
+- Unzip the [MIDI parser](https://github.com/nyh-workshop/MD_MIDIFile) into the Arduino's `Documents\Arduino\Libraries` folder.
+- Install the [arduino-littlefs-upload extension](https://github.com/earlephilhower/arduino-littlefs-upload) into the `C:\Users\<username>\.arduinoIDE\plugins\`.
+- At the `Tools->Flash Size` select `Sketch:3968KB,FS:128KB` before compiling.
+- A sample midi file is there inside for testing.
+
+### How to copy the files into the flash
+- Put the midi file into the sketch folder's `Data` folder. Make sure you have the same midi file name in that .ino too (SMF.load)!
+- Get the Raspberry Pico to be in Boot mode.
+- `Ctrl-Shift-P` in the Arduino IDE -> `Upload LittleFS to...`. Your midi files are now saved into the flash! :D
+- Reset the Raspberry Pico and let the music play.
+
+## Main Updates
+***Update 13-Feb-2025*** - Added support for playing MIDI files from Flash using LittleFS and the modified MajicDesigns' MIDI parser.
 
 ***Update 08-Feb-2025*** - This is being ported to RP2350 and for Arduino platform. Sine test module added for convenience.
 
@@ -30,7 +45,7 @@ There are clicking noises between note switches - this is mitigated by using an 
 Due to the difficulty of porting this to another architecture and/or platform, a short sine test is inserted inside. There should be only a 440Hz sine wave being output when you add 'True' when you init the object in that way:
 
 ```
-fmSynthPicoI2s tunePlayer(True);
+fmSynthPicoI2s tunePlayer(true);
 
 while(1)
 {
@@ -39,7 +54,7 @@ while(1)
 ```
 
 ## Future expansions
-Adding a LittleFS and a midi parser can be more ideal and convenient too, since it is now running on Arduino platform.
+More complete MIDI file checking routines.
 
 ## Instructions for creating and modifying custom patches (use commit [4b1e62](https://github.com/nyh-workshop/pico-fmSynth/commit/4b1e622bf7494a5b7b671c2d291cbe83a93ac167)) :
 

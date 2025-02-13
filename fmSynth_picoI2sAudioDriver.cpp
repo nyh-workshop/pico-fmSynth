@@ -40,6 +40,31 @@ fmSynthPicoI2s::~fmSynthPicoI2s() {
   Serial1.println("closing fmSynthPicoI2s...");
 }
 
+// Both these midiNoteOn and midiNoteOff are based on the ESP8266Audio's method of parsing the midi notes.
+void fmSynthPicoI2s::midiNoteOn(uint8_t num) {
+  // Take the next channel which is not playing:
+  for (uint8_t i = 0; i < MAX_FM_CHANNELS; i++) {
+    if (!fmc[i].getIsPlaying()) {
+      fmc[i].setIsPlaying();
+      fmc[i].setMidiNoteNum(num);
+      fmc[i].setFrequency(convertMidiNoteToFreq(fmc[i].getMidiNoteNum()));
+      fmc[i].noteOn();
+      break;
+    }
+  }
+}
+
+void fmSynthPicoI2s::midiNoteOff(uint8_t num) {
+  // Note off the channel which is playing:
+  for (uint8_t i = 0; i < MAX_FM_CHANNELS; i++) {
+    if(fmc[i].getIsPlaying() && (fmc[i].getMidiNoteNum() == num))
+    {
+      fmc[i].clearIsPlaying();
+      fmc[i].noteOff();
+    }
+  }  
+}
+
 int16_t fmSynthPicoI2s::getSampleTest() {
   int16_t tempSample = (int16_t)0;
   // Only one channel for sine test!
