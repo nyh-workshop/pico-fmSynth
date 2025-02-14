@@ -25,7 +25,7 @@ fmSynthPicoI2s::fmSynthPicoI2s(bool testMode) {
   configureInterpLanes();
   Serial1.println("Start up fmSynth I2S...");
   if (testMode == true) {
-    Serial1.println("Start up fmSynth I2S Test mode...");
+    Serial1.println("Start up fmSynth I2S Sine Test mode...");
     for (uint8_t i = 0; i < MAX_FM_CHANNELS; i++) {
       fmc[i].setChannelInstrument("TEST00");
     }
@@ -34,6 +34,14 @@ fmSynthPicoI2s::fmSynthPicoI2s(bool testMode) {
       fmc[i].setChannelInstrument("GUITAR");
     }
   }
+}
+
+fmSynthPicoI2s::fmSynthPicoI2s(std::string aInstrument) {
+  Serial1.println("Configure interpolator lanes...");
+  configureInterpLanes();
+  Serial1.println("Start up fmSynth I2S...");
+  for (uint8_t i = 0; i < MAX_FM_CHANNELS; i++)
+    fmc[i].setChannelInstrument(aInstrument);
 }
 
 fmSynthPicoI2s::~fmSynthPicoI2s() {

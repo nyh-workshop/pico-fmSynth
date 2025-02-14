@@ -70,7 +70,8 @@ void setup() {
 
   delay(1000);
 
-  tPlayer = new fmSynthPicoI2s(false);
+  // Note: Please put the instrument names that exist in patch.cpp, or else it asserts!
+  tPlayer = new fmSynthPicoI2s((std::string)"GUITAR");
 
   // Initialize LittleFS:
   if(!LittleFS.begin())
@@ -93,6 +94,9 @@ void setup() {
     Serial.printf("SMF load error: %d", err);
     while(1);
   }
+
+  Serial.printf("Filename: %s\n", SMF.getFilename());
+  Serial.printf("Format: %d\n", SMF.getFormat());
 
   state = S_PLAYING;
 }

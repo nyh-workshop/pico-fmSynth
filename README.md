@@ -20,7 +20,7 @@ This branch uses the **RP2350's interpolator module** to generate the sine wave 
 
 Only **4 operators** are used, and each of the operator has an envelope for each FM channel: [Dexed Reference](https://asb2m10.github.io/dexed/). Currently, it is using 1~3uS to generate one sample on the channel.
 
-Using MajicDesigns' [MIDI parser](https://github.com/nyh-workshop/MD_MIDIFile) with LittleFS support instead of MidiTones. Currently figuring out how to display and check MIDI info before playing the MIDI file. Some MIDI files might not play properly in the system and it is currently being investigated too.
+Using MajicDesigns' [MIDI parser](https://github.com/nyh-workshop/MD_MIDIFile) with LittleFS support instead of MidiTones. Some MIDI files might not play properly in the system and it is currently being investigated too.
 
 ## Installation and usage instructions
 - Unzip the [MIDI parser](https://github.com/nyh-workshop/MD_MIDIFile) into the Arduino's `Documents\Arduino\Libraries` folder.
@@ -54,7 +54,7 @@ while(1)
 ```
 
 ## Future expansions
-More complete MIDI file checking routines.
+Build it into an Arduino library, and write more examples!
 
 ## Instructions for creating and modifying custom patches (use commit [4b1e62](https://github.com/nyh-workshop/pico-fmSynth/commit/4b1e622bf7494a5b7b671c2d291cbe83a93ac167)) :
 

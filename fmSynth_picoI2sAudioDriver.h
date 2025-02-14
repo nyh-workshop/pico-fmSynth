@@ -14,6 +14,7 @@
 class fmSynthPicoI2s : public PicoI2sAudio<fmSynthPicoI2s>, public PlayTune<fmSynthPicoI2s> {
     public:
         fmSynthPicoI2s(bool testMode);
+        fmSynthPicoI2s(std::string aInstrument);
         ~fmSynthPicoI2s();
 
         // Pico I2S functions:
