@@ -60,7 +60,7 @@ private:
 template <typename T>
 Envelope<T>::Envelope() {
 	// all starts at zero at test!
-	Serial.println("Creating envelope!");
+	Serial1.println("Creating envelope!");
 
 	// Compatible data types: float and fixed point!
 	constexpr bool isFloat = std::is_same_v<T, float>;
@@ -95,7 +95,7 @@ Envelope<T>::Envelope() {
 
 template <typename T>
 Envelope<T>::~Envelope() {
-	Serial.println("Deleting envelope!");
+	Serial1.println("Deleting envelope!");
 }
 
 template <typename T>
@@ -238,7 +238,7 @@ void Envelope<T>::setRatesInSecs(float inputR0_s, float inputR1_s, float inputR3
 	// set for decay:
 	float numOfSamplesForDecay = inputR1_s / (float)(0.01f);
 	float temp1 = (-log((float)L1) / numOfSamplesForDecay);
-	//Serial.printf("numOfSamplesForDecay: %f\n", numOfSamplesForDecay);
+	//printf("numOfSamplesForDecay: %f\n", numOfSamplesForDecay);
 	//printf("temp1: %f\n", temp1);
 	//R1 = (T)exp(-temp1);
 

@@ -60,13 +60,6 @@ private:
   fmPatch patch;
   sineTestType sineTest = SINE_ONLY;
 
-  // Algorithm0 is for testing only - one sine oscillator! :D
-  int32_t (fmChannel::*a0)() = &fmChannel::algorithm0;
-  int32_t (fmChannel::*a2)() = &fmChannel::algorithm2;
-  int32_t (fmChannel::*a3)() = &fmChannel::algorithm3;
-  int32_t (fmChannel::*a5)() = &fmChannel::algorithm5;
-  int32_t (fmChannel::*a7)() = &fmChannel::algorithm7;
-
   //https://stackoverflow.com/questions/57926015/how-to-declare-an-array-of-pointers-to-member-functions-in-c
  static constexpr algorithmPtr fnArray[16] = { &fmChannel::algorithm0, &fmChannel::algorithm1, &fmChannel::algorithm2, &fmChannel::algorithm3, &fmChannel::algorithm4, &fmChannel::algorithm5, &fmChannel::algorithm6, &fmChannel::algorithm7, &fmChannel::algorithm8 };
 

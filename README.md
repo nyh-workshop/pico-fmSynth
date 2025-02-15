@@ -1,6 +1,6 @@
-# Raspberry Pico 2 Simple FM synth (Prototype Arduino Branch for RP2350)
+# Raspberry Pico 1 and 2 Simple FM synth (Arduino Branch for RP2040 and RP2350)
 
-This is a simple DX-9 style 6-channel FM synth for the Raspberry Pico 2.
+This is a simple DX-9 style 6-channel FM synth for the Raspberry Pico 1 and 2.
 
 Requirements:
 - Arduino IDE 2.3.2 and above
@@ -10,17 +10,23 @@ Requirements:
 - [arduino-littlefs-upload extension](https://github.com/earlephilhower/arduino-littlefs-upload)
 - USB connection for UART, FM synth module debug outputs at Serial1
 
-Floating point is used for this Raspberry Pico 2 with ARM Cortex-M33 cores.
-
-**RISC-V cores are not supported for now. This will be done when porting is fully complete.**
-
-The sounds and patches being output are not exactly DX-9 - it's only a **rough approximation** of that instrument. The envelope generator is a rudimentary ADSR state machine and it is not based on the more complicated designs of those of the other DX series. With that limited sampling rate and resolution, some of the patches may sound off if compared to listening to the actual DX-7 or DX-9 ones.
-
-This branch uses the **RP2350's interpolator module** to generate the sine wave using DDS. The interpolator for now is using only one lane. The interpolator module has to be shared by 4 other operators, and it is multiplexed by saving and restoring the accumulators on each sample.
+This branch uses the **RP2040's and RP2350's interpolator module** to generate the sine wave using DDS. The interpolator for now is using only one lane. The interpolator module has to be shared by 4 other operators, and it is multiplexed by saving and restoring the accumulators on each sample.
 
 Only **4 operators** are used, and each of the operator has an envelope for each FM channel: [Dexed Reference](https://asb2m10.github.io/dexed/). Currently, it is using 1~3uS to generate one sample on the channel.
 
 Using MajicDesigns' [MIDI parser](https://github.com/nyh-workshop/MD_MIDIFile) with LittleFS support instead of MidiTones. Some MIDI files might not play properly in the system and it is currently being investigated too.
+
+## Selecting the Raspberry Pico
+The selection can be done in `fmSynthConfig.h`:
+
+```
+// Select your Raspberry Pico here:
+// #define RP2350_ARDUINO
+#define RP2040_ARDUINO
+```
+
+For Raspberry Pico 1, choose `RP2040_ARDUINO`.
+For Raspberry Pico 2 (ARM Cortex-M33), choose `RP2350_ARDUINO`.
 
 ## Installation and usage instructions
 - Unzip the [MIDI parser](https://github.com/nyh-workshop/MD_MIDIFile) into the Arduino's `Documents\Arduino\Libraries` folder.
@@ -42,16 +48,35 @@ Using MajicDesigns' [MIDI parser](https://github.com/nyh-workshop/MD_MIDIFile) w
 ***Update 04-June-2023*** - A very large part of the code has been restructured - modules are now more isolated and clearly defined. The interpolator module is still coupled to the Oscillator - more plans to separate this too in the future. However, it is decided that the part where you can create and modify patches has been removed and planned to be relocated to another separate app. If you need to still create patches, you can check the following instructions. :D
 
 ## Sine test
-Due to the difficulty of porting this to another architecture and/or platform, a short sine test is inserted inside. There should be only a 440Hz sine wave being output when you add 'True' when you init the object in that way:
+Due to the difficulty of porting this to another architecture and/or platform, a short sine test is inserted inside. There should be only a **440Hz sine wave** being output when you add 'True' during initializing the object:
 
 ```
-fmSynthPicoI2s tunePlayer(true);
+fmSynthPicoI2s tunePlayer((bool)true);
 
 while(1)
 {
     tunePlayer.playSamples();
 }
 ```
+
+## Limitations
+- **RP2040**: since it does not have a floating point unit, [gbmhunter's Fixed Point library](https://github.com/gbmhunter/MFixedPoint) is used there. The sample rate is limited to 22050Hz because resolution of the fixed point is only at **15:16**.
+
+- **RP2350 (ARM Cortex-M33)**: floating point is used and 44100Hz sample rate is used.
+
+- **RP2350's RISC-V cores are not supported for now. Porting and testing still in progress.**
+
+The sounds and patches being output are not exactly DX-9 - it's only a **rough approximation** of that instrument. The envelope generator is a **rudimentary ADSR state machine** and it is not based on the more complicated designs of those of the other DX series. With that limited sampling rate and resolution, some of the patches may sound off if compared to listening to the actual DX-7 or DX-9 ones.
+
+## Benchmarks
+|Pico|Sample Rate (Hz)|Average time for one FM channel (uS)|
+|----|-----------|-------------------------------|
+|RP2040 @ 125MHz, no interpolator, sine generation using Bhaskara I method|22050|14~16|
+|RP2040 @ 250MHz, no interpolator, sine generation using Bhaskara I method|22050|7~8|
+|RP2040 @ 125MHz, interpolator |22050|4~5|
+|RP2350 (ARM Cortex-M33) @ 150MHz, interpolator |44100|1~3|
+
+The FM channel processing time can be sampled by getting the time before `fmc[chnNum].generateSample()` and after.
 
 ## Future expansions
 Build it into an Arduino library, and write more examples!

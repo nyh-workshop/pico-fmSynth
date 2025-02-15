@@ -26,7 +26,7 @@ public:
 
 	void clearFeedbackArray();
 	
-  #if defined(RP2040_SDK)
+  #if defined(RP2040_ARDUINO)
 	Envelope<fixedPoint> adsr;
   #elif defined(RP2350_ARDUINO)
   Envelope<float> adsr;

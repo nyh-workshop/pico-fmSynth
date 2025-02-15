@@ -42,7 +42,6 @@ void midiCallback(midi_event *pev)
   switch (pev->data[0]) {
     case NOTE_OFF:  // [1]=note no, [2]=velocity
       // playNote(pev->data[1], SILENT);
-      // tPlayer->noteOff(pev->channel);
       tPlayer->midiNoteOff(pev->data[1]);
       printf("NOTE_OFF ch: %d\n", pev->data[1]);
       break;
@@ -50,7 +49,6 @@ void midiCallback(midi_event *pev)
     case NOTE_ON:  // [1]=note_no, [2]=velocity
       // Note ON with velocity 0 is the same as off
       // playNote(pev->data[1], (pev->data[2] == 0) ? SILENT : ACTIVE);
-      // tPlayer->noteOn(pev->channel, pev->data[1]);
       // Velocity is not included for now!
       tPlayer->midiNoteOn(pev->data[1]);
       printf("NOTE_ON trk: %d, ch: %d, no: %d\n", pev->track, pev->channel, pev->data[1]);
@@ -102,21 +100,6 @@ void setup() {
 }
 
 void loop() {
-  // Without interpolator (22050Hz), oscillator using Bhaskara I method:
-  // 125MHz:
-  // average 3~4 uS for one operator!
-  // average 14~16 uS for one FM channel!
-  // 250MHz:
-  // average 7~8 uS for one FM channel!
-
-  // RP2040 interpolator (22050Hz):
-  // 125MHz:
-  // average less than 1 uS for one operator!
-  // average 4~5 uS for one FM channel!
-
-  // RP2350 interpolator (44100Hz), with floating point:
-  // 150MHz:
-  // average 1~3us for one FM channel!
   switch (state) {
     case S_IDLE:
       delay(500);

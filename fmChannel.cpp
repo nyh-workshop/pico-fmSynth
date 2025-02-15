@@ -65,7 +65,7 @@ void fmChannel::setChannelInstrument(std::string patchName) {
 			Serial.println("algorithm not available!");
 			assert(false);
 		} 
-		Serial.printf("Patch Name: %s\n", patch.name);
+		Serial1.printf("Patch Name: %s\n", patch.name);
 	}
 }
 
