@@ -53,7 +53,6 @@ private:
   float fmChannelFreqInHz;
   int32_t fmChannelOutput;
   
-  // For using Midi player instead of MidiTones:
   bool isPlaying = false;
   uint8_t midiNote = 0;
   

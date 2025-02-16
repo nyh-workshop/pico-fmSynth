@@ -4,9 +4,10 @@ int16_t wavetable1024[1024];
 
 bool Oscillator::wavetableFilled = false;
 
-constexpr uint32_t SINE_440_TUNING_WORD = ((uint64_t)UINT32_MAX * 440ul) / FMSYNTH_SAMPLE_RATE; 
+constexpr uint32_t SINE_440_TUNING_WORD = ((uint64_t)UINT32_MAX * 440ul) / FMSYNTH_SAMPLE_RATE;
 
-Oscillator::Oscillator() {
+Oscillator::Oscillator()
+{
 	Serial1.println("osc create!");
 
 	// Fill this wavetable once! :D
@@ -26,13 +27,15 @@ Oscillator::Oscillator() {
 	tuningWord = 0;
 }
 
-Oscillator::~Oscillator() {
+Oscillator::~Oscillator()
+{
 	Serial1.println("osc delete!");
 }
 
-void Oscillator::setFrequency(float inputFreq) {
+void Oscillator::setFrequency(float inputFreq)
+{
 	tuningWord = ceil(inputFreq * pow(2, 32) / (float)FMSYNTH_SAMPLE_RATE);
-	//printf("tuningWord: %f\n", (float)tuningWord);
+	// printf("tuningWord: %f\n", (float)tuningWord);
 }
 
 int32_t Oscillator::op(int32_t inputFeedback)
@@ -49,14 +52,13 @@ int32_t Oscillator::op(int32_t inputFeedback)
 
 		accumulator = interp1->accum[0];
 
-		// I don't even know what's making that screeching noise when Fixed Point is enabled for RP2350!
-    #if defined(RP2040_ARDUINO)
+#if defined(ARDUINO_ARCH_RP2040)
 		fixedPoint outputFP(_result0);
-    int32_t output = (int32_t)(outputFP * adsr.envelopeStep());    
-    #elif defined(RP2350_ARDUINO)
-    float outputFloat = float(_result0);
-    int32_t output = (int32_t)(outputFloat * adsr.envelopeStep());
-    #endif
+		int32_t output = (int32_t)(outputFP * adsr.envelopeStep());
+#elif defined(ARDUINO_ARCH_RP2350)
+		float outputFloat = float(_result0);
+		int32_t output = (int32_t)(outputFloat * adsr.envelopeStep());
+#endif
 
 		return output;
 	}
@@ -64,7 +66,8 @@ int32_t Oscillator::op(int32_t inputFeedback)
 		return 0;
 }
 
-int32_t Oscillator::opfb(uint8_t fbShift) {
+int32_t Oscillator::opfb(uint8_t fbShift)
+{
 
 	if (adsr.getState() != NONE)
 	{
@@ -80,15 +83,14 @@ int32_t Oscillator::opfb(uint8_t fbShift) {
 		feedback[0] = _result0;
 
 		accumulator = interp1->accum[0];
-		
-    // I don't even know what's making that screeching noise when Fixed Point is enabled for RP2350!
-    #if defined(RP2040_ARDUINO)
+
+#if defined(ARDUINO_ARCH_RP2040)
 		fixedPoint outputFP(_result0);
-    int32_t output = (int32_t)(outputFP * adsr.envelopeStep());    
-    #elif defined(RP2350_ARDUINO)
-    float outputFloat = float(_result0);
-    int32_t output = (int32_t)(outputFloat * adsr.envelopeStep());
-    #endif
+		int32_t output = (int32_t)(outputFP * adsr.envelopeStep());
+#elif defined(ARDUINO_ARCH_RP2350)
+		float outputFloat = float(_result0);
+		int32_t output = (int32_t)(outputFloat * adsr.envelopeStep());
+#endif
 
 		return output;
 	}
@@ -96,7 +98,8 @@ int32_t Oscillator::opfb(uint8_t fbShift) {
 		return 0;
 }
 
-void Oscillator::clearFeedbackArray() {
+void Oscillator::clearFeedbackArray()
+{
 	// Clears all the feedback array. Useful for patch debug purpose where the feedbacks have to be cleared after switching algorithms.
 	feedback[0] = 0;
 	feedback[1] = 0;

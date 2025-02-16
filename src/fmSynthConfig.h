@@ -3,13 +3,9 @@
 
 #include "FpF.hpp"
 
-// Select your Raspberry Pico here:
-// #define RP2350_ARDUINO
-#define RP2040_ARDUINO
-
-#if defined(RP2040_ARDUINO)
+#if defined(ARDUINO_ARCH_RP2040)
 #define FMSYNTH_SAMPLE_RATE 22050
-#elif defined(RP2350_ARDUINO)
+#elif defined(ARDUINO_ARCH_RP2350)
 #define FMSYNTH_SAMPLE_RATE 44100
 #endif
 

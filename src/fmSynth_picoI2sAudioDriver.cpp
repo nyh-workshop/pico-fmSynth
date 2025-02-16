@@ -39,7 +39,7 @@ fmSynthPicoI2s::fmSynthPicoI2s(bool testMode) {
 fmSynthPicoI2s::fmSynthPicoI2s(std::string aInstrument) {
   Serial1.println("Configure interpolator lanes...");
   configureInterpLanes();
-  Serial1.println("Start up fmSynth I2S...");
+  Serial1.println("Start up fmSynth I2S with default pins...");
   for (uint8_t i = 0; i < MAX_FM_CHANNELS; i++)
     fmc[i].setChannelInstrument(aInstrument);
 }

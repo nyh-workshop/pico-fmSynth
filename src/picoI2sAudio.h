@@ -5,10 +5,10 @@
 
 #include <I2S.h>
 #include <pio_i2s.pio.h>
-// GPIO pin numbers
-#define pBCLK 31
-#define pWS (pBCLK+1)
-#define pDOUT 34
+// Default GPIO pin numbers
+#define DEFAULT_pBCLK 31
+#define DEFAULT_pWS (DEFAULT_pBCLK+1)
+#define DEFAULT_pDOUT 34
 
 extern I2S i2s;
 
@@ -16,6 +16,7 @@ template<typename T>
 class PicoI2sAudio {
 public:
   PicoI2sAudio();
+  PicoI2sAudio(uint8_t pinDATAOUT, uint8_t pinBCLK);
   ~PicoI2sAudio();
   void playSamples();
   int16_t getSample();
@@ -25,14 +26,28 @@ protected:
 
 template<typename T>
 PicoI2sAudio<T>::PicoI2sAudio() {
-  Serial1.println("Init I2S audio...");
-#if defined(RP2040_ARDUINO)
+  Serial1.println("Init I2S audio default...");
+#if defined(ARDUINO_ARCH_RP2040)
   Serial1.println("I2S audio for RP2040.");
-#elif defined(RP2350_ARDUINO)
+#elif defined(ARDUINO_ARCH_RP2350)
   Serial1.println("I2S audio for RP2350.");
 #endif
-  i2s.setDATA(pDOUT);
-  i2s.setBCLK(pBCLK); // Note: LRCLK = BCLK + 1
+  i2s.setDATA(DEFAULT_pDOUT);
+  i2s.setBCLK(DEFAULT_pBCLK); // Note: LRCLK = BCLK + 1
+  i2s.setBitsPerSample(16);
+  i2s.begin(FMSYNTH_SAMPLE_RATE);
+}
+
+template<typename T>
+PicoI2sAudio<T>::PicoI2sAudio(uint8_t pinDATAOUT, uint8_t pinBCLK) {
+  Serial1.printf("Init I2S audio...");
+#if defined(ARDUINO_ARCH_RP2040)
+  Serial1.println("I2S audio for RP2040.");
+#elif defined(ARDUINO_ARCH_RP2350)
+  Serial1.println("I2S audio for RP2350.");
+#endif
+  i2s.setDATA(pinDATAOUT);
+  i2s.setBCLK(pinBCLK); // Note: LRCLK = BCLK + 1
   i2s.setBitsPerSample(16);
   i2s.begin(FMSYNTH_SAMPLE_RATE);
 }

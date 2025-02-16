@@ -1,31 +1,6 @@
-// pico-fmSynth - ported to Arduino.
-// Branch: interp_oneCore
-
-/**
- * Copyright (c) 2020 Raspberry Pi (Trading) Ltd.
- *
- * SPDX-License-Identifier: BSD-3-Clause
- */
-
-#include <stdio.h>
-#include <math.h>
-#include <tusb.h>
-
 #include <LittleFS.h>
 #include <MD_MIDIFile.h>
-
-#include "hardware/clocks.h"
-#include "hardware/irq.h"
-#include "hardware/structs/clocks.h"
-
-#include "pico/stdlib.h"
-#include "pico/util/queue.h"
-#include "pico/multicore.h"
-#include "pico/sem.h"
-
-#include "sampleMidi.h"
-
-#include "fmSynth_picoI2sAudioDriver.h"
+#include <fmSynth_picoI2sAudioDriver.h>
 
 fmSynthPicoI2s* tPlayer = nullptr;
 MD_MIDIFile SMF;
@@ -62,13 +37,13 @@ void midiCallback(midi_event *pev)
 static enum { S_IDLE, S_PLAYING } state = S_IDLE;
 
 void setup() {
-  // uint32_t owner;
+  
   Serial1.begin(115200);
   Serial.begin(115200);
 
   delay(1000);
-
-  // Note: Please put the instrument names that exist in patch.cpp, or else it asserts!
+  
+  // Note: Please put the instrument names that exist in patch.cpp and README.md, or else it asserts!
   tPlayer = new fmSynthPicoI2s((std::string)"GUITAR");
 
   // Initialize LittleFS:
@@ -100,7 +75,7 @@ void setup() {
 }
 
 void loop() {
-  switch (state) {
+switch (state) {
     case S_IDLE:
       delay(500);
       break;
