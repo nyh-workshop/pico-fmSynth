@@ -52,11 +52,10 @@ int32_t Oscillator::op(int32_t inputFeedback)
 
 		accumulator = interp1->accum[0];
 
-#if defined(ARDUINO_ARCH_RP2040)
-		fixedPoint outputFP(_result0);
-		int32_t output = (int32_t)(outputFP * adsr.envelopeStep());
-#elif defined(ARDUINO_ARCH_RP2350)
-		float outputFloat = float(_result0);
+#if defined(PICO_RP2040)
+		int32_t output = (int32_t)((fixedPoint)_result0 * adsr.envelopeStep());   
+#elif defined(PICO_RP2350)
+		float outputFloat = (float)_result0;
 		int32_t output = (int32_t)(outputFloat * adsr.envelopeStep());
 #endif
 
@@ -84,11 +83,10 @@ int32_t Oscillator::opfb(uint8_t fbShift)
 
 		accumulator = interp1->accum[0];
 
-#if defined(ARDUINO_ARCH_RP2040)
-		fixedPoint outputFP(_result0);
-		int32_t output = (int32_t)(outputFP * adsr.envelopeStep());
-#elif defined(ARDUINO_ARCH_RP2350)
-		float outputFloat = float(_result0);
+#if defined(PICO_RP2040)
+		int32_t output = (int32_t)((fixedPoint)_result0 * adsr.envelopeStep());
+#elif defined(PICO_RP2350)
+		float outputFloat = (float)_result0;
 		int32_t output = (int32_t)(outputFloat * adsr.envelopeStep());
 #endif
 

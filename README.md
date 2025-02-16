@@ -72,8 +72,6 @@ fmSynthPicoI2s(29, 31, "GUITAR");
 
 - **RP2350's RISC-V cores are not supported for now. Porting and testing still in progress.**
 
-- Build Optimize at `-Os` is generating loud screeching noises! Recommmend to build at `-O` or `-Og`.
-
 The sounds and patches being output are not exactly DX-9 - it's only a **rough approximation** of that instrument. The envelope generator is a **rudimentary ADSR state machine** and it is not based on the more complicated designs of those of the other DX series. With that limited sampling rate and resolution, some of the patches may sound off if compared to listening to the actual DX-7 or DX-9 ones.
 
 ## Main Updates

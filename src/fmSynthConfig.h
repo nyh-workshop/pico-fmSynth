@@ -3,9 +3,9 @@
 
 #include "FpF.hpp"
 
-#if defined(ARDUINO_ARCH_RP2040)
+#if defined(PICO_RP2040)
 #define FMSYNTH_SAMPLE_RATE 22050
-#elif defined(ARDUINO_ARCH_RP2350)
+#elif defined(PICO_RP2350)
 #define FMSYNTH_SAMPLE_RATE 44100
 #endif
 

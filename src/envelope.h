@@ -10,6 +10,7 @@
 #include "FpF.hpp"
 
 const uint32_t tenMsTick = (uint32_t)(0.01f * (float)FMSYNTH_SAMPLE_RATE);
+const fixedPoint tenMsTickFP = (fixedPoint)((float)(1/tenMsTick));
 
 enum EnvelopeState { NONE = 0, ATTACK, DECAY, SUSTAIN, RELEASE };
 
@@ -173,9 +174,8 @@ T Envelope<T>::envelopeStep() {
 	else {
 		// Linear interpolation here!
 		if constexpr(isFloat)
-		    lerpVol = ( float((nextVolume - volume)/tenMsTick) * envCount ) + volume;
+			lerpVol = ( (float)((nextVolume - volume)/tenMsTick) * envCount ) + volume;
 		if constexpr(isFixedPoint) {
-			fixedPoint tenMsTickFP = (fixedPoint)(float)(1/tenMsTick);
 			lerpVol = ((nextVolume - volume)/tenMsTickFP) + volume;
 		}
 		

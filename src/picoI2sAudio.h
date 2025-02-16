@@ -27,9 +27,9 @@ protected:
 template<typename T>
 PicoI2sAudio<T>::PicoI2sAudio() {
   Serial1.println("Init I2S audio default...");
-#if defined(ARDUINO_ARCH_RP2040)
+#if defined(PICO_RP2040)
   Serial1.println("I2S audio for RP2040.");
-#elif defined(ARDUINO_ARCH_RP2350)
+#elif defined(PICO_RP2350)
   Serial1.println("I2S audio for RP2350.");
 #endif
   i2s.setDATA(DEFAULT_pDOUT);
@@ -41,9 +41,9 @@ PicoI2sAudio<T>::PicoI2sAudio() {
 template<typename T>
 PicoI2sAudio<T>::PicoI2sAudio(uint8_t pinDATAOUT, uint8_t pinBCLK) {
   Serial1.printf("Init I2S audio...");
-#if defined(ARDUINO_ARCH_RP2040)
+#if defined(PICO_RP2040)
   Serial1.println("I2S audio for RP2040.");
-#elif defined(ARDUINO_ARCH_RP2350)
+#elif defined(PICO_RP2350)
   Serial1.println("I2S audio for RP2350.");
 #endif
   i2s.setDATA(pinDATAOUT);

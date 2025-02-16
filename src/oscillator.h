@@ -27,9 +27,9 @@ public:
 
 	void clearFeedbackArray();
 
-#if defined(ARDUINO_ARCH_RP2040)
+#if defined(PICO_RP2040)
 	Envelope<fixedPoint> adsr;
-#elif defined(ARDUINO_ARCH_RP2350)
+#elif defined(PICO_RP2350)
 	Envelope<float> adsr;
 #endif
 private:
