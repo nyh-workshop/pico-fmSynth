@@ -43,7 +43,7 @@ void midiCallback(midi_event *pev)
     case NOTE_OFF:  // [1]=note no, [2]=velocity
       // playNote(pev->data[1], SILENT);
       tPlayer->midiNoteOff(pev->data[1]);
-      printf("NOTE_OFF ch: %d\n", pev->data[1]);
+      Serial.printf("NOTE_OFF ch: %d\n", pev->data[1]);
       break;
 
     case NOTE_ON:  // [1]=note_no, [2]=velocity
@@ -51,7 +51,7 @@ void midiCallback(midi_event *pev)
       // playNote(pev->data[1], (pev->data[2] == 0) ? SILENT : ACTIVE);
       // Velocity is not included for now!
       tPlayer->midiNoteOn(pev->data[1]);
-      printf("NOTE_ON trk: %d, ch: %d, no: %d\n", pev->track, pev->channel, pev->data[1]);
+      Serial.printf("NOTE_ON trk: %d, ch: %d, no: %d\n", pev->track, pev->channel, pev->data[1]);
       break;
 
     default:

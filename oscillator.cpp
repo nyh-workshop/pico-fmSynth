@@ -49,12 +49,10 @@ int32_t Oscillator::op(int32_t inputFeedback)
 
 		accumulator = interp1->accum[0];
 
-		// I don't even know what's making that screeching noise when Fixed Point is enabled for RP2350!
     #if defined(RP2040_ARDUINO)
-		fixedPoint outputFP(_result0);
-    int32_t output = (int32_t)(outputFP * adsr.envelopeStep());    
+    int32_t output = (int32_t)((fixedPoint)_result0 * adsr.envelopeStep());    
     #elif defined(RP2350_ARDUINO)
-    float outputFloat = float(_result0);
+    float outputFloat = (float)_result0;
     int32_t output = (int32_t)(outputFloat * adsr.envelopeStep());
     #endif
 
@@ -81,12 +79,10 @@ int32_t Oscillator::opfb(uint8_t fbShift) {
 
 		accumulator = interp1->accum[0];
 		
-    // I don't even know what's making that screeching noise when Fixed Point is enabled for RP2350!
     #if defined(RP2040_ARDUINO)
-		fixedPoint outputFP(_result0);
-    int32_t output = (int32_t)(outputFP * adsr.envelopeStep());    
+    int32_t output = (int32_t)((fixedPoint)_result0 * adsr.envelopeStep());    
     #elif defined(RP2350_ARDUINO)
-    float outputFloat = float(_result0);
+    float outputFloat = (float)_result0;
     int32_t output = (int32_t)(outputFloat * adsr.envelopeStep());
     #endif
 
