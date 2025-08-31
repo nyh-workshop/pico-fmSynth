@@ -84,6 +84,27 @@ Some instruments can also make distorted noise when the volume is too loud. It i
 tPlayer->setVolume(VOLUME_LOUDER);
 ```
 
+## MAX98357's Shutdown Mode (`/SD_MODE`)
+If this project involves battery and using MAX98357 module, remember to also set the `/SD_MODE` pin to `0` to shut it down. Here is an example if you need to include this in the project:
+
+```
+#define MAX98357_SD 16
+
+void setup()
+{
+    // Code for your player's startup etc...
+    pinMode(MAX98357_SD, INPUT);
+    // More code for your player's startup...
+}
+
+void loop()
+{
+    // When player is done playing, set the pin to 0:
+    pinMode(MAX98357_SD, OUTPUT);
+    digitalWrite(MAX98357_SD, LOW);
+}
+```
+
 ## Main Updates
 ***Update 31-Aug-2025*** - Added primitive volume control.
 
