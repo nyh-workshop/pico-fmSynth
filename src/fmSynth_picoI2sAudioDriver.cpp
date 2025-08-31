@@ -88,5 +88,9 @@ int16_t fmSynthPicoI2s::getSample() {
     // absolute_time_t after = get_absolute_time();
     // Serial1.printf("generate fm sample time: %d\n", (uint32_t)absolute_time_diff_us(before, after));
   }
+
+  // Some primitive volume boost (Experimental):
+  // Clamping of values will be implemented in next update. 
+  tempSample *= volume;
   return tempSample;
 }

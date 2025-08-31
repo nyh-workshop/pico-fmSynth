@@ -11,6 +11,11 @@
 #include "fmChannel.h"
 #include "midiFreqTable.h"
 
+const uint8_t VOLUME_DEFAULT = 1;
+const uint8_t VOLUME_LOUD = 2;
+const uint8_t VOLUME_LOUDER = 4;
+const uint8_t VOLUME_LOUDEST = MAX_FM_CHANNELS;
+
 class fmSynthPicoI2s : public PicoI2sAudio<fmSynthPicoI2s> {
     public:
         fmSynthPicoI2s(bool testMode);
@@ -29,6 +34,7 @@ class fmSynthPicoI2s : public PicoI2sAudio<fmSynthPicoI2s> {
         // Pico I2S functions:
         int16_t getSample();
         int16_t getSampleTest();
+        inline void setVolume(uint8_t aVolume) { volume = aVolume; };
 
         // Other functions for Pico:
         void configureInterpLanes();
@@ -45,6 +51,7 @@ class fmSynthPicoI2s : public PicoI2sAudio<fmSynthPicoI2s> {
 
     private:
         fmChannel fmc[MAX_FM_CHANNELS];
+        uint8_t volume = VOLUME_DEFAULT;
 };
 
 #endif

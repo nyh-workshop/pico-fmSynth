@@ -45,6 +45,7 @@ void setup() {
   
   // Note: Please put the instrument names that exist in patch.cpp and README.md, or else it asserts!
   tPlayer = new fmSynthPicoI2s((std::string)"GUITAR");
+  tPlayer->setVolume(VOLUME_LOUDER);
 
   // Initialize LittleFS:
   if(!LittleFS.begin())

@@ -9,7 +9,7 @@ This is a simple DX-9 style 6-channel FM synth library for the Raspberry Pico 1 
 ## Requirements
 - Arduino IDE 2.3.2 and above
 - Raspberry Pi RP2040/RP2350 board library (4.1.1)
-- I2S DAC (PCM5102)
+- I2S DAC (PCM5102, or MAX98357)
 - Modified MajicDesigns' [MD_MIDIFile](https://github.com/nyh-workshop/MD_MIDIFile) library to play MIDI files from LittleFS (Flash size: 128KB)
 - [arduino-littlefs-upload extension](https://github.com/earlephilhower/arduino-littlefs-upload)
 - USB connection for UART, FM synth module debug outputs at Serial1
@@ -20,7 +20,7 @@ Only **4 operators** are used, and each of the operator has an envelope for each
 
 Using MajicDesigns' [MIDI parser](https://github.com/nyh-workshop/MD_MIDIFile) with LittleFS support instead of MidiTones. Some MIDI files might not play properly in the system and it is currently being investigated too.
 
-## Build a circuit example (Default: BCLK=31, WS=32, DATA=34)
+## Build a circuit example (Default: `BCLK=31`, `WS=32`, `DATA=34`)
 ![](/media/pico-fmSynth_bb.png)
 
 ## Installation and usage instructions
@@ -36,7 +36,7 @@ Using MajicDesigns' [MIDI parser](https://github.com/nyh-workshop/MD_MIDIFile) w
 #include <MD_MIDIFile.h>
 #include <fmSynth_picoI2sAudioDriver.h>
 ```
-- For default pins (BCLK=31, WS=32, DATA=34) just init the library as follows with the instrument of your choice (see *Supported Instrument List*):
+- For default pins (`BCLK=31`, `WS=32`, `DATA=34`) just init the library as follows with the instrument of your choice (see *Supported Instrument List*):
 ```
 fmSynthPicoI2s("GUITAR");
 ```
@@ -74,7 +74,19 @@ fmSynthPicoI2s(29, 31, "GUITAR");
 
 The sounds and patches being output are not exactly DX-9 - it's only a **rough approximation** of that instrument. The envelope generator is a **rudimentary ADSR state machine** and it is not based on the more complicated designs of those of the other DX series. With that limited sampling rate and resolution, some of the patches may sound off if compared to listening to the actual DX-7 or DX-9 ones.
 
+## Volume Control
+**Note**: This is still under testing, and sample values may wrap around and cause bad distortions if the volume multiplier is too high. I'm only setting `VOLUME_DEFAULT = 1`, `VOLUME_LOUD = 2`, `VOLUME_LOUDER = 4` and `VOLUME_LOUDEST = MAX_FM_CHANNELS` as a start.
+
+Some instruments can also make distorted noise when the volume is too loud. It is recommended to scale down if that happens! :D
+
+### Setting volume example:
+```
+tPlayer->setVolume(VOLUME_LOUDER);
+```
+
 ## Main Updates
+***Update 31-Aug-2025*** - Added primitive volume control.
+
 ***Update 16-Feb-2025*** - Arduino Library support.
 
 ***Update 13-Feb-2025*** - Added support for playing MIDI files from Flash using LittleFS and the modified MajicDesigns' MIDI parser.
