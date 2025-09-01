@@ -9,6 +9,8 @@
 #define FMSYNTH_SAMPLE_RATE 44100
 #endif
 
+#define PATCH_MAKER_CHANNEL 1
+
 #define MAX_FM_CHANNELS 6
 
 #define SAMPLES_PER_BUFFER 256

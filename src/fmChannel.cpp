@@ -22,8 +22,6 @@ void fmChannel::setChannelInstrument(std::string patchName) {
 
 	struct fmPatch inputPatch;
 
-	//stdio_init_all();
-
 	patch.name = (char*)"Default";
 	patch.algorithm = 0;
 
@@ -40,7 +38,7 @@ void fmChannel::setChannelInstrument(std::string patchName) {
 	if (patch.name == "Default")
 	{
 		// No such patch found! Assert here!
-    Serial1.println("No such patch here!");
+    	Serial1.println("Error: No such patch here!");
 		assert(false);
 	}
 	else
@@ -62,14 +60,14 @@ void fmChannel::setChannelInstrument(std::string patchName) {
 		if(!afPtr)
 		{
 			// If the algorithm is not available, assert.
-			Serial.println("algorithm not available!");
+			Serial.println("Error: algorithm not available!");
 			assert(false);
 		} 
 		Serial1.printf("Patch Name: %s\n", patch.name);
 	}
 }
 
-// Algorithm0 is only for testing purposes only!
+// Algorithm0 is only for testing purposes only (Sine wave 440Hz)!
 int32_t fmChannel::algorithm0() {
 	int32_t Y0 = 0;
 
@@ -201,16 +199,16 @@ void fmChannel::noteOff() {
 }
 
 void fmChannel::printChannelDetails() {
-	printf("a: %d\t\tf: %d\n", patch.algorithm, patch.feedback);
-	printf("o--L0---L1---L3---R0---R1---R3----S----Ratio\n");
+	Serial1.printf("a: %d\t\tf: %d\n", patch.algorithm, patch.feedback);
+	Serial1.printf("o--L0---L1---L3---R0---R1---R3----S----Ratio\n");
 	for(uint8_t i = 0; i < MAX_OSC; i++) {
-		printf("%d: %2.2f %2.2f %2.2f %2.2f %2.2f %2.2f %5.2f %2.2f\n", i, patch.ops[i].L0, patch.ops[i].L1, patch.ops[i].L3, patch.ops[i].R0, patch.ops[i].R1, patch.ops[i].R3, patch.ops[i].sustainInSecs, patch.ops[i].ratio);		
+		Serial1.printf("%d: %2.2f %2.2f %2.2f %2.2f %2.2f %2.2f %5.2f %2.2f\n", i, patch.ops[i].L0, patch.ops[i].L1, patch.ops[i].L3, patch.ops[i].R0, patch.ops[i].R1, patch.ops[i].R3, patch.ops[i].sustainInSecs, patch.ops[i].ratio);		
 	}
 }
 
 void fmChannel::getOscDetails(uint8_t osc_n, float* array) {
 	if (osc_n >= MAX_OSC) {
-		printf("Osc exceeds MAX_OSC value!\n");
+		printf("Error: Osc exceeds MAX_OSC value!\n");
 		assert(false);
 	}
 
@@ -226,7 +224,7 @@ void fmChannel::getOscDetails(uint8_t osc_n, float* array) {
 
 void fmChannel::setOscDetails(uint8_t osc_n, float* array) {
 	if (osc_n >= MAX_OSC) {
-		printf("Osc exceeds MAX_OSC value!\n");
+		Serial1.printf("Error: Osc exceeds MAX_OSC value!\n");
 		assert(false);
 	}
 

@@ -106,6 +106,8 @@ void loop()
 ```
 
 ## Main Updates
+***Update 01-Sep-2025*** - Changed sine test to be more easier to access, and added the previous Patch Maker app from the older branches. (**Note: This Patch Maker feature is extra janky! Use with caution!**)
+
 ***Update 31-Aug-2025*** - Added primitive volume control.
 
 ***Update 16-Feb-2025*** - Arduino Library support.
@@ -117,16 +119,19 @@ void loop()
 ***Update 04-June-2023*** - A very large part of the code has been restructured - modules are now more isolated and clearly defined. The interpolator module is still coupled to the Oscillator - more plans to separate this too in the future. However, it is decided that the part where you can create and modify patches has been removed and planned to be relocated to another separate app. If you need to still create patches, you can check the following instructions. :D
 
 ## Sine test
-Due to the difficulty of porting this to another architecture and/or platform, a short sine test is inserted inside. There should be only a **440Hz sine wave** being output when you add 'True' during initializing the object (use default pins only!):
+Due to the difficulty of porting this to another architecture and/or platform, a short sine test is inserted inside. There should be only a **440Hz sine wave** being output when you add `SINE_440HZ_TEST` during initializing the object (use default pins only!):
 
 ```
-fmSynthPicoI2s tunePlayer((bool)true);
-
-while(1)
-{
-    tunePlayer.playSamples();
-}
+tPlayer = new fmSynthPicoI2s(SINE_440HZ_TEST);
 ```
+
+## Patch Maker
+If you need to create and tune your own patches, Patch Maker can assist you. This Patch Maker is derived from the [earlier branch](https://github.com/nyh-workshop/pico-fmSynth/tree/interp?tab=readme-ov-file) and it is now easily accessible by initializing the object with `PATCH_MAKER`:
+
+```
+tPlayer = new fmSynthPicoI2s(PATCH_MAKER);
+```
+The Patch Maker is still in works and the documentation is available at the [PATCH_MAKER_README.md](PATCH_MAKER_README.md).
 
 ## Benchmarks
 |Pico|Sample Rate (Hz)|Average time for one FM channel (uS)|

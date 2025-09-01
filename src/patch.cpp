@@ -15,16 +15,28 @@ const struct fmPatch p00 {
 		0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f
 };
 
-// Debugging patch only, using algorithm 7 as default:
+// Patch Maker, using algorithm 7 as default:
 //-----L0-----L1------L3-----R0-----R1-----R3---Sustain--Ratio---
 const struct fmPatch p255 {
-	"TEST01",
+	"PATCHMAKER",
 		7,
 		0,
 		1.00f, 0.20f, 0.00f, 0.01f, 0.50f, 0.00f, 0.50f, 1.00f, // osc3 here!
 		0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 1.00f,
 		0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 1.00f,
-		0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 1.00f		
+		0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 1.00f
+};
+
+// DX7 set 4 - Glockenspiel
+//-----L0-----L1------L3-----R0-----R1-----R3---Sustain--Ratio---
+const struct fmPatch p28 {
+	"GLOCKENSPL",
+		5,
+		6,
+		1.00f, 0.05f, 0.01f, 0.01f, 0.25f, 0.00f, 0.00f, 1.01f,
+		0.60f, 0.05f, 0.01f, 0.01f, 8.00f, 0.80f, 0.00f, 8.00f,
+		0.90f, 0.05f, 0.01f, 0.01f, 0.25f, 0.80f, 0.00f, 1.00f,
+		0.30f, 0.05f, 0.01f, 0.01f, 6.00f, 0.40f, 0.00f, 8.02f
 };
 
 // DX7 default - Brass 1 (loosely based on rom1a.syx):
@@ -171,4 +183,4 @@ const struct fmPatch p27 {
 		0.90f, 0.30f, 0.10f, 0.01f, 0.05f, 0.01f, 1.00f, 5.95f
 };
 
-const struct fmPatch fmPatchList[32] = {p00, p02, p04, p05, p07, p07_1, p09, p16, p16_1, p13, p19, p23, p27, p255};
+const struct fmPatch fmPatchList[32] = {p00, p02, p04, p05, p07, p07_1, p09, p16, p16_1, p13, p19, p23, p27, p28, p255};

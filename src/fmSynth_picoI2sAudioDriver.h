@@ -10,15 +10,22 @@
 #include "picoI2sAudio.h"
 #include "fmChannel.h"
 #include "midiFreqTable.h"
+#include "fmPatchMaker.h"
 
 const uint8_t VOLUME_DEFAULT = 1;
 const uint8_t VOLUME_LOUD = 2;
 const uint8_t VOLUME_LOUDER = 4;
 const uint8_t VOLUME_LOUDEST = MAX_FM_CHANNELS;
 
+enum PlayMode {
+    MIDI_PLAYER = 0,
+    SINE_440HZ_TEST,
+    PATCH_MAKER
+};
+
 class fmSynthPicoI2s : public PicoI2sAudio<fmSynthPicoI2s> {
     public:
-        fmSynthPicoI2s(bool testMode);
+        fmSynthPicoI2s(uint8_t aMode);
         fmSynthPicoI2s(std::string aInstrument);
         fmSynthPicoI2s(uint8_t pinDATAOUT, uint8_t pinBCLK) : PicoI2sAudio<fmSynthPicoI2s>(pinDATAOUT, pinBCLK) {}
         fmSynthPicoI2s(uint8_t pinDATAOUT, uint8_t pinBCLK, std::string aInstrument) : PicoI2sAudio<fmSynthPicoI2s>(pinDATAOUT, pinBCLK)
@@ -49,9 +56,14 @@ class fmSynthPicoI2s : public PicoI2sAudio<fmSynthPicoI2s> {
         // Misc. helper functions:
         inline float convertMidiNoteToFreq(uint32_t midiNumber) {return freqOneOctave[midiNumber % 12] * (float)(1 << (uint32_t)(midiNumber / 12));}
 
+        // Patch Maker functions:
+        void PatchMakerProcessInputSelection(char selection);
+        void PatchMakerPrintHelp();
+
     private:
         fmChannel fmc[MAX_FM_CHANNELS];
         uint8_t volume = VOLUME_DEFAULT;
+        uint8_t mode = MIDI_PLAYER;
 };
 
 #endif
